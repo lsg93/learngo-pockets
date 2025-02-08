@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"flag"
+	"fmt"
+	"strings"
+)
 
 type language string
 
@@ -28,7 +32,10 @@ var Phrasebook = map[language]string{
 
 // Opted to try and handle errors in functions below even though the book says that comes in later chapters.
 func main() {
-	msg, err := greeting("en")
+	var code string
+	flag.StringVar(&code, "code", "en", `The two-character ISO 639-1 language code for the language you'd like to be greeted in, e.g. "en"`)
+	flag.Parse()
+	msg, err := greeting(language(code))
 	if err != nil {
 		fmt.Printf("Error : %q", err)
 	}
@@ -39,7 +46,7 @@ func greeting(l language) (string, error) {
 	msg, ok := Phrasebook[l]
 	if !ok {
 		var errMsg string
-		if l == "" {
+		if strings.TrimSpace(string(l)) == "" {
 			errMsg = ErrNoCountryCode
 		} else {
 			errMsg = fmt.Sprintf(ErrUnsupportedCountryCode, l)
