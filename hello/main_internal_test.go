@@ -27,7 +27,7 @@ func TestGreeting(t *testing.T) {
 		if gotErrMsg == nil {
 			t.Errorf("Expected error, but did not get one.")
 		}
-		wantErrMsg := "no country code provided."
+		wantErrMsg := ErrNoCountryCode
 		if gotErrMsg.Error() != wantErrMsg {
 			t.Errorf("Expected error mesgosage %q, got %q", wantErrMsg, gotErrMsg)
 		}
@@ -36,7 +36,7 @@ func TestGreeting(t *testing.T) {
 	t.Run("Errors as expected when country code is not found in phrasebook", func(t *testing.T) {
 		_, gotErrMsg := greeting("abc")
 		if gotErrMsg == nil {
-			t.Errorf("country code %q is not supported", "abc")
+			t.Errorf("Expected error message, but did not get one")
 		}
 		wantErrMsg := fmt.Sprintf("country code %q is not supported", "abc")
 		if gotErrMsg.Error() != wantErrMsg {

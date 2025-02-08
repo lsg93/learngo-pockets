@@ -12,6 +12,11 @@ type language string
 	Opting to export the variable means it can be reused in the test file.
 */
 
+const (
+	ErrNoCountryCode          = "no country code provided."
+	ErrUnsupportedCountryCode = "country code %q is not supported"
+)
+
 var Phrasebook = map[language]string{
 	"el": "Χαίρετε Κόσμε",
 	"en": "Hello world",
@@ -35,9 +40,9 @@ func greeting(l language) (string, error) {
 	if !ok {
 		var errMsg string
 		if l == "" {
-			errMsg = "no country code provided."
+			errMsg = ErrNoCountryCode
 		} else {
-			errMsg = fmt.Sprintf("country code %q is not supported", l)
+			errMsg = fmt.Sprintf(ErrUnsupportedCountryCode, l)
 		}
 		return "", fmt.Errorf(errMsg)
 	}
