@@ -1,104 +1,144 @@
 [
-    {
-      "name": "Alice",
-      "books": [
-        {
-          "author": "Jane Austen",
-          "name": "Pride and Prejudice"
-        },
-        {
-          "author": "Charlotte Brontë",
-          "name": "Jane Eyre"
-        },
-        {
-          "author": "Margaret Mitchell",
-          "name": "Gone with the Wind"
-        }
-      ]
-    },
-    {
-      "name": "Bob",
-      "books": [
-        {
-          "author": "J.R.R. Tolkien",
-          "name": "The Lord of the Rings"
-        },
-        {
-          "author": "George R. R. Martin",
-          "name": "A Game of Thrones"
-        },
-        {
-          "author": "Brandon Sanderson",
-          "name": "The Way of Kings"
-        }
-      ]
-    },
-    {
-      "name": "Charlie",
-      "books": [
-        {
-          "author": "Stephen King",
-          "name": "It"
-        },
-        {
-          "author": "Dean Koontz",
-          "name": "Odd Thomas"
-        },
-        {
-          "author": "Anne Rice",
-          "name": "Interview with the Vampire"
-        }
-      ]
-    },
-    {
-      "name": "David",
-      "books": [
-        {
-          "author": "Arthur Conan Doyle",
-          "name": "The Adventures of Sherlock Holmes"
-        },
-        {
-          "author": "Agatha Christie",
-          "name": "Murder on the Orient Express"
-        },
-        {
-          "author": "Edgar Allan Poe",
-          "name": "The Raven"
-        }
-      ]
-    },
-    {
-      "name": "Emily",
-      "books": [
-        {
-          "author": "J.K. Rowling",
-          "name": "Harry Potter and the Philosopher's Stone"
-        },
-        {
-          "author": "C.S. Lewis",
-          "name": "The Lion, the Witch, and the Wardrobe"
-        },
-        {
-          "author": "Rick Riordan",
-          "name": "The Lightning Thief"
-        }
-      ]
-    },
-    {
-      "name": "Frank",
-      "books": [
-        {
-          "author": "Ernest Hemingway",
-          "name": "The Old Man and the Sea"
-        },
-        {
-          "author": "F. Scott Fitzgerald",
-          "name": "The Great Gatsby"
-        },
-        {
-          "author": "John Steinbeck",
-          "name": "The Grapes of Wrath"
-        }
-      ]
-    }
-  ]
+  {
+    "name": "Alice",
+    "books": [
+      {
+        "author": "Jane Austen",
+        "name": "Pride and Prejudice"
+      },
+      {
+        "author": "Charlotte Brontë",
+        "name": "Jane Eyre"
+      },
+      {
+        "author": "Margaret Mitchell",
+        "name": "Gone with the Wind"
+      },
+      {
+        "author": "J.K. Rowling",
+        "name": "Harry Potter and the Philosopher's Stone"
+      },
+      {
+        "author": "C.S. Lewis",
+        "name": "The Lion, the Witch, and the Wardrobe"
+      },
+      {
+        "author": "Stephen King",
+        "name": "It"
+      }
+    ]
+  },
+  {
+    "name": "Bob",
+    "books": [
+      {
+        "author": "J.R.R. Tolkien",
+        "name": "The Lord of the Rings"
+      },
+      {
+        "author": "George R. R. Martin",
+        "name": "A Game of Thrones"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "name": "The Way of Kings"
+      },
+      {
+        "author": "Stephen King",
+        "name": "The Shining"
+      },
+      {
+        "author": "Dean Koontz",
+        "name": "Odd Thomas"
+      }
+    ]
+  },
+  {
+    "name": "Charlie",
+    "books": [
+      {
+        "author": "Stephen King",
+        "name": "It"
+      },
+      {
+        "author": "Dean Koontz",
+        "name": "Odd Thomas"
+      },
+      {
+        "author": "Anne Rice",
+        "name": "Interview with the Vampire"
+      },
+      {
+        "author": "J.R.R. Tolkien",
+        "name": "The Lord of the Rings"
+      },
+      {
+        "author": "Arthur Conan Doyle",
+        "name": "The Adventures of Sherlock Holmes"
+      }
+    ]
+  },
+  {
+    "name": "David",
+    "books": [
+      {
+        "author": "Arthur Conan Doyle",
+        "name": "The Adventures of Sherlock Holmes"
+      },
+      {
+        "author": "Agatha Christie",
+        "name": "Murder on the Orient Express"
+      },
+      {
+        "author": "Edgar Allan Poe",
+        "name": "The Raven"
+      },
+      {
+        "author": "Ernest Hemingway",
+        "name": "The Old Man and the Sea"
+      }
+    ]
+  },
+  {
+    "name": "Emily",
+    "books": [
+      {
+        "author": "J.K. Rowling",
+        "name": "Harry Potter and the Philosopher's Stone"
+      },
+      {
+        "author": "C.S. Lewis",
+        "name": "The Lion, the Witch, and the Wardrobe"
+      },
+      {
+        "author": "Rick Riordan",
+        "name": "The Lightning Thief"
+      },
+      {
+        "author": "Margaret Mitchell",
+        "name": "Gone with the Wind"  
+      }
+    ]
+  },
+  {
+    "name": "Frank",
+    "books": [
+      {
+        "author": "Ernest Hemingway",
+        "name": "The Old Man and the Sea"
+      },
+      {
+        "author": "F. Scott Fitzgerald",
+        "name": "The Great Gatsby"
+      },
+      {
+        "author": "John Steinbeck",
+        "name": "The Grapes of Wrath"
+      },
+      {
+        "author": "George R. R. Martin",
+        "name": "A Game of Thrones"  
+      }
+    ]
+  }
+]

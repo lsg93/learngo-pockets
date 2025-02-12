@@ -11,5 +11,5 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to load bookworms : ")
 		os.Exit(1)
 	}
-	fmt.Println(bookworms)
+	findCommonBooks(bookworms)
 }
