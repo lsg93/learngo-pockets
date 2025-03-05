@@ -51,7 +51,7 @@ func findCommonBooks(bookworms []Bookworm) []Book {
 
 func sortBooks(books []Book) []Book {
 	sort.Slice(books, func(i, j int) bool {
-		if books[i].Author < books[j].Author {
+		if books[i].Author != books[j].Author {
 			return books[i].Author < books[j].Author
 		}
 		return books[i].Name < books[j].Name
