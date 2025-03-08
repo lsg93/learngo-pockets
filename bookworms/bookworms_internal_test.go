@@ -133,14 +133,6 @@ func TestFindCommonBooks(t *testing.T) {
 		wantResult []Book
 	}
 
-	book1 := Book{Author: "Author1", Name: "Book1"}
-	book2 := Book{Author: "Author2", Name: "Book2"}
-	book3 := Book{Author: "Author3", Name: "Book3"}
-	book4 := Book{Author: "Author4", Name: "Book4"}
-	book5 := Book{Author: "Author5", Name: "Book5"}
-	book6 := Book{Author: "Author6", Name: "Book6"}
-	book7 := Book{Author: "Author7", Name: "Book7"}
-
 	testCases := map[string]testCase{
 		"Every user same books": {
 			slice: []Bookworm{
@@ -152,33 +144,33 @@ func TestFindCommonBooks(t *testing.T) {
 		},
 		"Multiple common books between users": {
 			slice: []Bookworm{
-				{Name: "User4", Books: []Book{book1, book2, book3}},
-				{Name: "User5", Books: []Book{book1, book3, book4}},
-				{Name: "User6", Books: []Book{book2, book3}},
+				{Name: "User1", Books: []Book{book1, book2, book3}},
+				{Name: "User2", Books: []Book{book1, book3, book4}},
+				{Name: "User3", Books: []Book{book2, book3}},
 			},
 			wantResult: []Book{book1, book2, book3},
 		},
 		"No common books between users": {
 			slice: []Bookworm{
-				{Name: "User7", Books: []Book{book5}},
-				{Name: "User8", Books: []Book{book6}},
-				{Name: "User9", Books: []Book{book7}},
+				{Name: "User1", Books: []Book{book5}},
+				{Name: "User2", Books: []Book{book6}},
+				{Name: "User3", Books: []Book{book7}},
 			},
 			wantResult: nil,
 		},
 		"Some users with no books": {
 			slice: []Bookworm{
-				{Name: "User7", Books: []Book{book5}},
-				{Name: "User8", Books: []Book{book6}},
-				{Name: "User9", Books: []Book{book7}},
+				{Name: "User1", Books: []Book{book5}},
+				{Name: "User2", Books: []Book{}},
+				{Name: "User3", Books: []Book{book7}},
 			},
 			wantResult: nil,
 		},
 		"No users with any books": {
 			slice: []Bookworm{
-				{Name: "User12", Books: []Book{book1}},
-				{Name: "User13", Books: []Book{}},
-				{Name: "User14", Books: []Book{book4}},
+				{Name: "User1", Books: []Book{}},
+				{Name: "User2", Books: []Book{}},
+				{Name: "User3", Books: []Book{}},
 			},
 			wantResult: nil,
 		},
