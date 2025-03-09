@@ -44,9 +44,6 @@ func TestBookIntersection(t *testing.T) {
 		},
 	}
 
-	//TODO fix this test...
-	// Need to make wantResult have 2 values basically.
-
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
 			gotResult := bookIntersection(tc.slice1, tc.slice2)

@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"slices"
+	"sort"
 )
 
 // The descriptions given for certain implementation details in the book are very terse/nonexistent
@@ -75,5 +76,13 @@ func recommendBooks(bookworm string, bookworms []Bookworm, recommendationCount i
 		}
 	}
 
-	return results
+	return sortRecommendations(results)
+}
+
+// Sort by descending score
+func sortRecommendations(r []Recommendation) []Recommendation {
+	sort.Slice(r, func(i, j int) bool {
+		return r[i].Score > r[j].Score
+	})
+	return r
 }

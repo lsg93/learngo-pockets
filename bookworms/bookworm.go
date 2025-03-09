@@ -6,6 +6,12 @@ import (
 	"sort"
 )
 
+type Book struct {
+	Author string `json:"author"`
+	Name   string `json:"name"`
+}
+
+type BookCount map[Book]uint
 type Bookworm struct {
 	Name  string `json:"name"`
 	Books []Book `json:"books"`
