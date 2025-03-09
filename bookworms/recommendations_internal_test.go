@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"slices"
 	"testing"
 )
@@ -48,8 +49,8 @@ func TestBookIntersection(t *testing.T) {
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			gotResult, gotResult2 := bookIntersection(tc.slice1, tc.slice2)
-			if !slices.Equal(gotResult, gotResult2) {
+			gotResult := bookIntersection(tc.slice1, tc.slice2)
+			if !slices.Equal(gotResult, tc.wantResult) {
 				t.Errorf("Results of intersection were different to what was expected - %v expected, %v returned", tc.wantResult, gotResult)
 			}
 		})
@@ -63,33 +64,64 @@ func TestRecommendations(t *testing.T) {
 		wantResult     []Recommendation
 	}
 
+	// When determining the expected results
+	// Evaulate math.Log(x) + 1 for each intersection where x is the length of the intersection.
+
 	testCases := map[string]TestCase{
 		"bookworms with some books in common": {
-			chosenBookworm: "User1",
+			chosenBookworm: "User3",
 			bookworms: []Bookworm{
 				{Name: "User1", Books: []Book{book1, book2, book3}},
 				{Name: "User2", Books: []Book{book1, book3, book4}},
 				{Name: "User3", Books: []Book{book2, book3}},
 			},
-			wantResult: []Recommendation{{Book: book1, score: 1}, {Book: book4, score: 1}},
+			wantResult: []Recommendation{{Book: book1, Score: (math.Log(2) + math.Log(1) + 2)}, {Book: book4, Score: 1}},
 		},
-		// "bookworms with no books in common": {
-		// 	chosenBookworm: {},
-		// 	bookworms:      []Bookworm{},
-		// 	wantResult:   []Recommendation{},
-		// },
-		// "bookworms with identical books": {
-		// 	chosenBookworm: {},
-		// 	bookworms:      []Bookworm{},
-		// 	wantResult:   []Recomendation{},
-		// },
-		// "No bookworms given": {
-		// 	chosenBookworm: {},
-		// 	bookworms:      []Bookworm{},
-		// 	wantResult:   []Recomendation{},
-		// },
-		// "Reader given does not exist in range of bookworms": {
-		// }
+		"bookworms with no books in common": {
+			chosenBookworm: "User2",
+			bookworms: []Bookworm{
+				{Name: "User1", Books: []Book{book1, book2, book3}},
+				{Name: "User2", Books: []Book{book4, book5, book6}},
+				{Name: "User3", Books: []Book{book7}},
+			},
+			wantResult: []Recommendation{},
+		},
+		"bookworms with identical books": {
+			chosenBookworm: "User1",
+			bookworms: []Bookworm{
+				{Name: "User1", Books: []Book{book1, book2, book3}},
+				{Name: "User2", Books: []Book{book1, book2, book3}},
+				{Name: "User3", Books: []Book{book1, book2, book3}},
+			},
+			wantResult: []Recommendation{},
+		},
+		"bookworms with no books": {
+			chosenBookworm: "User1",
+			bookworms: []Bookworm{
+				{Name: "User1", Books: []Book{}},
+				{Name: "User2", Books: []Book{}},
+				{Name: "User3", Books: []Book{}},
+			},
+			wantResult: []Recommendation{},
+		},
+		"bookworms does not exist in given bookworm slice": {
+			chosenBookworm: "User4",
+			bookworms: []Bookworm{
+				{Name: "User1", Books: []Book{}},
+				{Name: "User2", Books: []Book{}},
+				{Name: "User3", Books: []Book{}},
+			},
+			wantResult: []Recommendation{},
+		},
+		"Target bookworm  argument is not provided": {
+			chosenBookworm: "",
+			bookworms: []Bookworm{
+				{Name: "User1", Books: []Book{book1, book2, book3}},
+				{Name: "User2", Books: []Book{book1, book3, book4}},
+				{Name: "User3", Books: []Book{book2, book3}},
+			},
+			wantResult: []Recommendation{},
+		},
 	}
 
 	for desc, tc := range testCases {

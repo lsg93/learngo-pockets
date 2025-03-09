@@ -7,26 +7,27 @@ import (
 
 // The descriptions given for certain implementation details in the book are very terse/nonexistent
 // So this might not be a perfect analogue to the function shown in the book @ Listing 3.22.
+type Recommendation struct {
+	Book  Book
+	Score float64
+}
 
-func bookIntersection(bwSlice []Book, targetSlice []Book) ([]Book, []Book) {
-	set := map[Book]bool
+func bookIntersection(bwSlice []Book, targetSlice []Book) []Book {
+	set := make(map[Book]bool)
 
 	for _, book := range bwSlice {
 		set[book] = true
 	}
 
 	intersection := []Book{}
-	unreadBooks := []Book{}
 
 	for _, book := range targetSlice {
 		if _, ok := set[book]; ok {
 			intersection = append(intersection, book)
-		} else {
-			unreadBooks = append(unreadBooks, book)
 		}
 	}
 
-	return intersection, unreadBooks
+	return intersection
 }
 
 func recommendBooks(bookworm string, bookworms []Bookworm, recommendationCount int) []Recommendation {
@@ -40,14 +41,14 @@ func recommendBooks(bookworm string, bookworms []Bookworm, recommendationCount i
 	}
 
 	readBooks := bookworms[bookwormIdx].Books
-	var recommendations map[Book]float64
+	recommendations := map[Book]float64{}
 
 	for idx, bookworm := range bookworms {
 		if idx == bookwormIdx {
 			continue
 		}
 
-		intersection, unreadBooks := bookIntersection(bookworm.Books, readBooks)
+		intersection := bookIntersection(bookworm.Books, readBooks)
 
 		var similarity float64
 		similarity = float64(len(intersection))
@@ -59,10 +60,20 @@ func recommendBooks(bookworm string, bookworms []Bookworm, recommendationCount i
 		// Use logs to compress similarities incase of variation
 		similarity = math.Log(similarity) + 1
 
-		for _, ub := range unreadBooks {
-			recommendations[ub] += similarity
+		for _, book := range bookworm.Books {
+			if slices.Contains(intersection, book) {
+				continue
+			}
+			recommendations[book] += similarity
 		}
 	}
 
-	return nil
+	results := []Recommendation{}
+	for book, score := range recommendations {
+		if len(results) < recommendationCount {
+			results = append(results, Recommendation{Book: book, Score: score})
+		}
+	}
+
+	return results
 }
