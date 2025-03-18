@@ -21,7 +21,7 @@ func ExampleLogger_Infof() {
 
 func ExampleLogger_Errorf() {
 	l := pocketlog.New(pocketlog.LevelError)
-	err := l.Errorf("Error message.")
-	fmt.Println(err.Error())
+	errMsg := l.Errorf("Error message.")
+	fmt.Println(errMsg)
 	// Output: Error message.
 }
