@@ -1,51 +1,55 @@
 package pocketlog
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+	"os"
+)
 
 type Logger struct {
+	output    io.Writer
 	threshold Level
-	shouldLog shouldLogRules
-}
-
-type shouldLogRules struct {
-	Debug bool
-	Info  bool
-	Error bool
 }
 
 // New returns a pointer to a new Logger, which is then used to log messages from the application.
-// We compute the levels at which messages should be logged based on the threshold passed when the struct is instantiated.
-func New(threshold Level) *Logger {
+func New(output io.Writer, threshold Level) *Logger {
 	return &Logger{
+		output:    output,
 		threshold: threshold,
-		shouldLog: shouldLogRules{
-			Debug: LevelDebug >= threshold,
-			Info:  LevelInfo >= threshold,
-			Error: LevelError >= threshold,
-		},
 	}
+}
+
+// Handles the actual logging of messages
+func (l Logger) logf(format string, args ...any) {
+	_, _ = fmt.Fprintf(l.output, format+"\n", args...)
 }
 
 // Log 'Debug' level messages.
-func (l *Logger) Debugf(format string, a ...any) string {
-	if !l.shouldLog.Debug {
-		return ""
+func (l Logger) Debugf(format string, args ...any) {
+	if l.output == nil {
+		l.output = os.Stdout
 	}
-	return fmt.Sprintf(format, a...)
+	if l.threshold <= LevelDebug {
+		l.logf(format+"\n", args...)
+	}
 }
 
 // Log 'Info' level messages.
-func (l *Logger) Infof(format string, a ...any) string {
-	if !l.shouldLog.Info {
-		return ""
+func (l Logger) Infof(format string, args ...any) {
+	if l.output == nil {
+		l.output = os.Stdout
 	}
-	return fmt.Sprintf(format, a...)
+	if l.threshold <= LevelInfo {
+		l.logf(format+"\n", args...)
+	}
 }
 
 // Log 'Error' level messages.
-func (l *Logger) Errorf(format string, a ...any) string {
-	if !l.shouldLog.Error {
-		return ""
+func (l Logger) Errorf(format string, args ...any) {
+	if l.output == nil {
+		l.output = os.Stdout
 	}
-	return fmt.Sprintf(format, a...)
+	if l.threshold <= LevelError {
+		l.logf(format+"\n", args...)
+	}
 }

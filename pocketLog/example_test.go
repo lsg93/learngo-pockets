@@ -1,27 +1,24 @@
 package pocketlog_test
 
 import (
-	"fmt"
 	pocketlog "learngo-pockets/logger"
+	"os"
 )
 
 func ExampleLogger_Debugf() {
-	l := pocketlog.New(pocketlog.LevelDebug)
-	debugMsg := l.Debugf("Debug message.")
-	fmt.Println(debugMsg)
+	l := pocketlog.New(os.Stdout, pocketlog.LevelDebug)
+	l.Debugf("Debug message.")
 	// Output: Debug message.
 }
 
 func ExampleLogger_Infof() {
-	l := pocketlog.New(pocketlog.LevelInfo)
-	infoMsg := l.Infof("Info message.")
-	fmt.Println(infoMsg)
+	l := pocketlog.New(os.Stdout, pocketlog.LevelInfo)
+	l.Infof("Info message.")
 	// Output: Info message.
 }
 
 func ExampleLogger_Errorf() {
-	l := pocketlog.New(pocketlog.LevelError)
-	errMsg := l.Errorf("Error message.")
-	fmt.Println(errMsg)
+	l := pocketlog.New(os.Stdout, pocketlog.LevelError)
+	l.Errorf("Error message.")
 	// Output: Error message.
 }
