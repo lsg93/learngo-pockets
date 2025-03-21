@@ -14,7 +14,7 @@ type Logger struct {
 // New returns a pointer to a new Logger, which is then used to log messages from the application.
 // Give it a list of configuration functions to tune it as you would like.
 // The default output is os.Stdout.
-func New(output io.Writer, threshold Level, options ...Option) *Logger {
+func New(threshold Level, options ...Option) *Logger {
 	lgr := &Logger{output: os.Stdout, threshold: threshold}
 	for _, option := range options {
 		option(lgr)
