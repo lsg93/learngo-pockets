@@ -24,7 +24,7 @@ func New(threshold Level, options ...Option) *Logger {
 
 // Handles the actual logging of messages
 func (l Logger) logf(format string, args ...any) {
-	_, _ = fmt.Fprintf(l.output, format+"\n", args...)
+	_, _ = fmt.Fprintf(l.output, format, args...)
 }
 
 // Log 'Debug' level messages.
