@@ -37,7 +37,7 @@ func New(options ...LoggerOption) *logger {
 // Handles logging of functions to output
 func (l *logger) logf(LoggerLevel LoggerLevel, format string, args ...any) {
 	shouldLog := l.shouldLog[LoggerLevel]
-	if shouldLog {
+	if !shouldLog {
 		return
 	}
 	_, _ = fmt.Fprintf(l.output, format+"\n", args...)
