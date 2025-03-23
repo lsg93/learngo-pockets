@@ -1,7 +1,6 @@
 package pocketlog_own_test
 
 import (
-	"bytes"
 	pocketlog_own "learngo-pockets/logger/own"
 	"strings"
 	"testing"
@@ -19,10 +18,10 @@ var Debugf LoggerMethod = "Debugf"
 var Infof LoggerMethod = "Infof"
 var Errorf LoggerMethod = "Errorf"
 
-var loggerMethods = []LoggerMethod{Debugf, Infof, Errorf}
-
 type LoggerOutput map[LoggerMethod]string
 
+// This test is awful and trying to be too clever. Would be better if broken down into separate tests for each method.
+// Trying too hard to ensure all methods are tested, but Go doesn't seem to work like that.
 func TestLoggerMethodsRespectThresholds(t *testing.T) {
 
 	type testCase struct {
@@ -32,28 +31,31 @@ func TestLoggerMethodsRespectThresholds(t *testing.T) {
 
 	testCases := map[string]testCase{
 		"Logs debug/info/error messages when threshold is set at debug level": {threshold: pocketlog_own.LevelDebug, wantResult: LoggerOutput{Debugf: debugMsg, Infof: infoMsg, Errorf: errMsg}},
-		"Only logs info/error messages when threshold is set at info level":   {threshold: pocketlog_own.LevelInfo, wantResult: LoggerOutput{Debugf: "", Infof: infoMsg, Errorf: errMsg}},
-		"Only logs error messages when threshold is set at error level":       {threshold: pocketlog_own.LevelInfo, wantResult: LoggerOutput{Debugf: "", Infof: "", Errorf: errMsg}},
+		"Only logs info/error messages when threshold is set at info level":   {threshold: pocketlog_own.LevelInfo, wantResult: LoggerOutput{Infof: infoMsg, Errorf: errMsg}},
+		"Only logs error messages when threshold is set at error level":       {threshold: pocketlog_own.LevelError, wantResult: LoggerOutput{Errorf: errMsg}},
 	}
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			// Create buffer to use as output
-			var buf bytes.Buffer
+			// Create writer to use as output
+			tlw := testLoggerWriter{contents: make(LoggerOutput)}
 
 			// Create a logger at threshold
 			l := pocketlog_own.New(
-				pocketlog_own.WithOutput(&buf),
+				pocketlog_own.WithOutput(&tlw),
 				pocketlog_own.WithThreshold(tc.threshold),
 			)
 
-			// Log messages
+			// Log messages - before logging, set the method in our testLoggerWriter struct so the message is added to the map.
+			tlw.setMethod("Debugf")
 			l.Debugf(debugMsg)
+			tlw.setMethod("Infof")
 			l.Infof(infoMsg)
+			tlw.setMethod("Errorf")
 			l.Errorf(errMsg)
 
 			// Take data from buffer and parse into a map which we can assert against.
-			gotResult := marshalLoggerOutput(&buf)
+			gotResult := tlw.contents
 
 			if !compareLoggerOutput(gotResult, tc.wantResult) {
 				t.Errorf("An error has occured - there is a difference between the wanted output and the expected output.")
@@ -63,21 +65,19 @@ func TestLoggerMethodsRespectThresholds(t *testing.T) {
 
 }
 
-func marshalLoggerOutput(b *bytes.Buffer) LoggerOutput {
-	o := make(LoggerOutput)
-	s := strings.Split(b.String(), "\n")
+type testLoggerWriter struct {
+	contents LoggerOutput
+	method   LoggerMethod
+}
 
-	if len(s) != len(loggerMethods) {
-		// Not sure what to do here, but there should be an error.
-		// This way if new logger methods are added without the tests being updated, they wil fail,
-		// In other languages I'd throw/return an error, but not sure how to do that in Go just yet.
-	}
+func (tlw *testLoggerWriter) setMethod(method LoggerMethod) {
+	tlw.method = method
+}
 
-	for idx, method := range loggerMethods {
-		o[method] = s[idx]
-	}
-
-	return o
+func (tlw *testLoggerWriter) Write(p []byte) (n int, err error) {
+	// Remove newlines for testing purposes.
+	tlw.contents[tlw.method] = strings.TrimSpace(string(p))
+	return len(p), nil
 }
 
 func compareLoggerOutput(map1 LoggerOutput, map2 LoggerOutput) bool {
