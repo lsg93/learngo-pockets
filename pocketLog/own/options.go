@@ -10,6 +10,12 @@ func WithOutput(output io.Writer) LoggerOption {
 	}
 }
 
+func WithLogLevel() LoggerOption {
+	return func(l *logger) {
+		l.shouldLogLevel = true
+	}
+}
+
 func WithThreshold(level LoggerLevel) LoggerOption {
 	return func(l *logger) {
 		l.threshold = level
