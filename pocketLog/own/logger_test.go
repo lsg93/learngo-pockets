@@ -3,6 +3,7 @@ package pocketlog_own_test
 import (
 	"bytes"
 	pocketlog_own "learngo-pockets/logger/own"
+	"math/rand"
 	"strings"
 	"testing"
 )
@@ -176,4 +177,95 @@ func TestLoggerMethodsLogLogLevel(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestLoggerOutputIsNotTrimmedWhenCharacterLimitIsNotMet(t *testing.T) {
+	type testCase struct {
+		msgLength int
+		limit     int
+	}
+
+	testCases := map[string]testCase{
+		"Log message is not trimmed if message length <= default character limit when none is provided": {msgLength: 1000, limit: -1},
+		"Log message is not trimmed if message length <= provided character limit":                      {msgLength: 1500, limit: 1500},
+	}
+
+	for desc, tc := range testCases {
+		t.Run(desc, func(t *testing.T) {
+			var buf bytes.Buffer
+			opts := appendCharacterLimitOption(tc.limit, []pocketlog_own.LoggerOption{pocketlog_own.WithOutput(&buf)})
+			l := pocketlog_own.New(opts...)
+
+			wantResult := generateStringOfLength(tc.msgLength)
+
+			l.Infof(wantResult)
+			gotResult := strings.TrimSpace(buf.String())
+
+			buf.Reset()
+
+			if gotResult != wantResult {
+				t.Errorf("Expected result and received result are different - expected %s, got %s", wantResult, gotResult)
+			}
+		})
+	}
+}
+
+func TestLoggerOutputIsTrimmedWhenCharacterLimitIsMet(t *testing.T) {
+	type testCase struct {
+		msgLength int
+		limit     int
+	}
+
+	testCases := map[string]testCase{
+		"Log message is trimmed if message length > default character limit when none is provided": {msgLength: 1001, limit: -1},
+		"Log message is trimmed if message length > provided character limit":                      {msgLength: 1501, limit: 1500},
+	}
+
+	for desc, tc := range testCases {
+		t.Run(desc, func(t *testing.T) {
+			var buf bytes.Buffer
+			opts := appendCharacterLimitOption(tc.limit, []pocketlog_own.LoggerOption{pocketlog_own.WithOutput(&buf)})
+			l := pocketlog_own.New(opts...)
+
+			var limit int
+			if tc.limit < 0 {
+				limit = 1000
+			} else {
+				limit = tc.limit
+			}
+
+			msg := generateStringOfLength(tc.msgLength)
+			l.Infof(msg)
+			gotResult := strings.TrimSpace(buf.String())
+
+			buf.Reset()
+
+			if len(gotResult) > limit {
+				t.Errorf("Message printed by logger exceeds expected character limit.")
+			}
+
+			if !strings.HasSuffix(gotResult, "...") {
+				t.Errorf("Message printed by logger was not truncated properly. Last 5 chars of result : %s", gotResult[len(gotResult)-5:])
+			}
+		})
+	}
+
+}
+
+func appendCharacterLimitOption(limit int, opts []pocketlog_own.LoggerOption) []pocketlog_own.LoggerOption {
+	if limit < 1000 {
+		return opts
+	}
+	return append(opts, pocketlog_own.WithCharacterLimit(limit))
+}
+
+func generateStringOfLength(length int) string {
+	bytes := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 "
+
+	var sb strings.Builder
+	for i := 0; i < length; i++ {
+		sb.WriteByte(bytes[rand.Intn(len(bytes))])
+	}
+
+	return sb.String()
 }

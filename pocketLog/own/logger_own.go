@@ -7,6 +7,7 @@ import (
 )
 
 type logger struct {
+	charLimit      int
 	logLevels      logLevels
 	output         io.Writer
 	threshold      LoggerLevel
@@ -21,9 +22,10 @@ type logLevels map[LoggerLevel]string
 // New returns a pointer to a new Logger, which is then used to log messages from the application.
 
 func New(options ...LoggerOption) *logger {
+	// The default value for the character limit of logged messages is 1000.
 	// The default value for output is os.Stdout.
 	// The default threshold at which error messages will be logged is LevelInfo.
-	l := &logger{output: os.Stdout, shouldLogLevel: false, threshold: LevelInfo}
+	l := &logger{charLimit: 1000, output: os.Stdout, shouldLogLevel: false, threshold: LevelInfo}
 
 	for _, option := range options {
 		option(l)
@@ -57,6 +59,11 @@ func (l *logger) logf(LoggerLevel LoggerLevel, format string, args ...any) {
 		format = l.logLevels[LoggerLevel] + format
 	}
 
+	if len(format) > l.charLimit {
+		format = trimString(format, l.charLimit-3)
+		format = format + "..."
+	}
+
 	_, _ = fmt.Fprintf(l.output, format+"\n", args...)
 }
 
@@ -73,4 +80,21 @@ func (l *logger) Infof(format string, args ...any) {
 // Log 'Error' LoggerLevel messages.
 func (l *logger) Errorf(format string, args ...any) {
 	l.logf(LevelError, format+"\n", args...)
+}
+
+func trimString(s string, limit int) string {
+	if len(s) <= limit {
+		return s
+	}
+
+	// Find the rune boundary at the limit.
+	runeCount := 0
+	for i := range s {
+		if runeCount >= limit {
+			return s[:i]
+		}
+		runeCount++
+	}
+
+	return s // Should not reach here if limit is smaller than len(s)
 }

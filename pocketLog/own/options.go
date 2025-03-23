@@ -4,6 +4,15 @@ import "io"
 
 type LoggerOption func(*logger)
 
+func WithCharacterLimit(limit int) LoggerOption {
+	return func(l *logger) {
+		if limit <= 0 {
+			return
+		}
+		l.charLimit = limit
+	}
+}
+
 func WithOutput(output io.Writer) LoggerOption {
 	return func(l *logger) {
 		l.output = output
