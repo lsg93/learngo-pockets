@@ -95,6 +95,47 @@ func compareLoggerOutput(map1 LoggerOutput, map2 LoggerOutput) bool {
 	return true
 }
 
+func TestLoggerMethodsDoNotLogLogLevelByDefault(t *testing.T) {
+	var buf bytes.Buffer
+	l := pocketlog_own.New(
+		pocketlog_own.WithOutput(&buf),
+		pocketlog_own.WithThreshold(pocketlog_own.LevelDebug),
+	)
+
+	type testCase struct {
+		logMethod  func(format string, args ...any)
+		msg        string
+		wantResult string
+	}
+
+	testCases := map[string]testCase{
+		"Debugf method does not show level when logging messages": {
+			logMethod: l.Debugf, msg: debugMsg, wantResult: debugMsg,
+		},
+		"Infof method does not show level when logging messages": {
+			logMethod: l.Infof, msg: infoMsg, wantResult: infoMsg,
+		},
+		"Errorf method does not show level when logging messages": {
+			logMethod: l.Errorf, msg: errMsg, wantResult: errMsg,
+		},
+	}
+
+	for desc, tc := range testCases {
+		t.Run(desc, func(t *testing.T) {
+			tc.logMethod(tc.msg)
+			// Trim newlines
+			gotResult := strings.TrimSpace(buf.String())
+
+			buf.Reset()
+
+			if gotResult != tc.wantResult {
+				t.Errorf("Expected result %s is different to received result %s", gotResult, tc.wantResult)
+			}
+		})
+	}
+
+}
+
 func TestLoggerMethodsLogLogLevel(t *testing.T) {
 
 	var buf bytes.Buffer
