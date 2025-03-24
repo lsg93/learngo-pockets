@@ -13,6 +13,12 @@ func WithCharacterLimit(limit int) LoggerOption {
 	}
 }
 
+func WithFormatter(formatter LoggerMessageFormatter) LoggerOption {
+	return func(l *logger) {
+		l.formatter = formatter
+	}
+}
+
 func WithOutput(output io.Writer) LoggerOption {
 	return func(l *logger) {
 		l.output = output

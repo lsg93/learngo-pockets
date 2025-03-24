@@ -8,6 +8,7 @@ import (
 
 type logger struct {
 	charLimit      int
+	formatter      LoggerMessageFormatter
 	logLevels      logLevels
 	output         io.Writer
 	threshold      LoggerLevel
@@ -23,9 +24,16 @@ type logLevels map[LoggerLevel]string
 
 func New(options ...LoggerOption) *logger {
 	// The default value for the character limit of logged messages is 1000.
+	// The default formatter is the PlaintextFormatter, which formats messages as they are given.
 	// The default value for output is os.Stdout.
 	// The default threshold at which error messages will be logged is LevelInfo.
-	l := &logger{charLimit: 1000, output: os.Stdout, shouldLogLevel: false, threshold: LevelInfo}
+	l := &logger{
+		charLimit:      1000,
+		formatter:      &PlaintextFormatter{},
+		output:         os.Stdout,
+		shouldLogLevel: false,
+		threshold:      LevelInfo,
+	}
 
 	for _, option := range options {
 		option(l)
