@@ -34,14 +34,18 @@ func TestGameWordLengthOption(t *testing.T) {
 
 func TestGameAskInput(t *testing.T) {
 	type testCase struct {
-		wantError error
-		input     string
+		wantError  error
+		wantResult string
+		input      string
 	}
 
 	testCases := map[string]testCase{
-		"handles ascii text":         {wantError: nil, input: "abcde"},
-		"handles unicode characters": {wantError: nil, input: "你好"},
-		"handles empty input":        {wantError: AskErrorNoInput, input: ""},
+		"handles ascii text":            {wantError: nil, wantResult: "abcde", input: "abcde"},
+		"handles unicode characters":    {wantError: nil, wantResult: "你好", input: "你好"},
+		"trims input on left side":      {wantError: nil, wantResult: "abcd", input: " abcd"},
+		"trims input on right side":     {wantError: nil, wantResult: "abcd", input: "abcd "},
+		"trims and handles empty input": {wantError: AskErrorNoInput, wantResult: "", input: " "},
+		"handles empty input":           {wantError: AskErrorNoInput, wantResult: "", input: ""},
 	}
 
 	for desc, tc := range testCases {
@@ -50,7 +54,7 @@ func TestGameAskInput(t *testing.T) {
 			g := New(WithInput(reader))
 			guess, gotError := g.ask()
 
-			if string(guess) != tc.input {
+			if string(guess) != tc.wantResult {
 				t.Errorf("The input string expected is not the same as the input string received.")
 			}
 

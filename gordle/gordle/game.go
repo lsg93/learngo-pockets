@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strings"
 	"unicode"
 )
 
@@ -70,6 +71,9 @@ func (g *game) validateGuess(guess []rune) error {
 
 func (g *game) ask() (guess []rune, err error) {
 	input, _, err := g.reader.ReadLine()
+
+	str := strings.TrimSpace(string(input))
+
 	if err != nil {
 		if err == io.EOF {
 			return nil, AskErrorNoInput
@@ -77,7 +81,7 @@ func (g *game) ask() (guess []rune, err error) {
 		return nil, err
 	}
 
-	return []rune(string(input)), nil
+	return []rune(str), nil
 }
 
 func (g *game) Play() {
