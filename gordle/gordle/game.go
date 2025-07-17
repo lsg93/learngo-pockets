@@ -95,8 +95,6 @@ func (g *game) ask() (guess []rune, err error) {
 	input, _, err := g.reader.ReadLine()
 
 	str := strings.TrimSpace(string(input))
-	// fmt.Println("guess was :" + str)
-	// panic("stop execution")
 
 	if err != nil {
 		if err == io.EOF {
@@ -124,14 +122,16 @@ func (g *game) Play() {
 		if err != nil {
 			fmt.Println(err.Error())
 			g.output.Write([]byte(err.Error()))
-			// i-- // decrement loop
+			i-- // decrement loop
 			continue
 		}
 
 		if string(guess) == g.solution {
 			g.output.Write([]byte("You won!"))
+			return
 		} else {
 			g.output.Write([]byte(string(guess)))
 		}
+
 	}
 }

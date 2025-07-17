@@ -58,6 +58,7 @@ func TestGordleGameWin(t *testing.T) {
 				output,
 				gordle.WithInput(reader),
 				gordle.WithSolution(tc.solution),
+				gordle.WithDictionary([]string{"audio", "guess", "quart", "dummy", "audit"}),
 			)
 
 			g.Play()
