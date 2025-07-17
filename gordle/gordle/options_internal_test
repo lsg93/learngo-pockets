@@ -1,0 +1,23 @@
+// func TestGameSolutionOption(t *testing.T) {
+// 	type testCase struct {
+// 		length     int
+// 		wantResult int
+// 	}
+
+// 	testCases := map[string]testCase{
+// 		"Length of < 2 is ignored":            {length: 1, wantResult: DefaultWordLength},
+// 		"Given solution is present on struct": {length: 6, wantResult: 6},
+// 	}
+
+// 	for _, tc := range testCases {
+// 		g := New(
+// 			WithWordLength(tc.length),
+// 		)
+
+// 		wordLength := g.wordLength
+
+// 		if wordLength != tc.wantResult {
+// 			t.Errorf("The expected word length for this game should be %d, but it is currently %d.", tc.wantResult, wordLength)
+// 		}
+// 	}
+// }

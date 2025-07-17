@@ -13,10 +13,17 @@ import (
 
 type game struct {
 	input      io.Reader
+	output     io.Writer
 	reader     *bufio.Reader
+	guesses    int
+	solution   string
 	dictionary []string
-	wordLength int
 }
+
+var (
+	TTYGreen  = "\033[32m"
+	TTYYellow = "\033[33m"
+)
 
 var (
 	AskErrorInvalidInput          = errors.New("The input given is invalid")
@@ -25,20 +32,34 @@ var (
 	AskErrorNotInDictionary       = errors.New("This isn't a word")
 )
 
-var DefaultWordLength = 5
+func New(output io.Writer, options ...GameOption) *game {
+	fmt.Println("DEBUG: New function started!")
 
-func New(options ...GameOption) *game {
 	g := &game{
 		input:      os.Stdin,
-		wordLength: DefaultWordLength,
+		output:     output,
+		guesses:    6, // Could make this an option, but it's not wordle if it has more/less possible guesses!
 		dictionary: []string{"abcde", "hello", "你好你好好"},
 	}
 
+	fmt.Println("2")
+
+	fmt.Fprintf(os.Stdout, "DEBUG: Initial g.input type: %T\n", g.input)
+
+	fmt.Println("3")
+
 	for _, option := range options {
-		option(g)
+		err := option(g)
+		if err != nil {
+			fmt.Println(err.Error())
+			output.Write([]byte(err.Error()))
+		}
 	}
 
+	fmt.Fprintf(os.Stdout, "DEBUG: New g.input type: %T\n", g.input)
+
 	g.reader = bufio.NewReader(g.input)
+	fmt.Println("DEBUG: New function is about to return!")
 
 	return g
 }
@@ -58,7 +79,7 @@ func (g *game) validateGuess(guess []rune) error {
 		return AskErrorInvalidInput
 	}
 
-	if len(guess) != g.wordLength {
+	if len(guess) != len(g.solution) {
 		return AskErrorOutsideCharacterLimit
 	}
 
@@ -70,9 +91,12 @@ func (g *game) validateGuess(guess []rune) error {
 }
 
 func (g *game) ask() (guess []rune, err error) {
+	fmt.Println("making guess")
 	input, _, err := g.reader.ReadLine()
 
 	str := strings.TrimSpace(string(input))
+	// fmt.Println("guess was :" + str)
+	// panic("stop execution")
 
 	if err != nil {
 		if err == io.EOF {
@@ -81,11 +105,33 @@ func (g *game) ask() (guess []rune, err error) {
 		return nil, err
 	}
 
+	vErr := g.validateGuess([]rune(str))
+
+	if vErr != nil {
+		return nil, vErr
+	}
+
 	return []rune(str), nil
 }
 
 func (g *game) Play() {
-	fmt.Println("Welcome to Gordle!")
-	fmt.Println("Enter a guess:")
-	g.ask()
+	g.output.Write([]byte("Welcome to Gordle!"))
+	g.output.Write([]byte("Enter a guess:"))
+
+	for i := 0; i < g.guesses; i++ {
+		guess, err := g.ask()
+
+		if err != nil {
+			fmt.Println(err.Error())
+			g.output.Write([]byte(err.Error()))
+			// i-- // decrement loop
+			continue
+		}
+
+		if string(guess) == g.solution {
+			g.output.Write([]byte("You won!"))
+		} else {
+			g.output.Write([]byte(string(guess)))
+		}
+	}
 }

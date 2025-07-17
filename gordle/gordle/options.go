@@ -1,21 +1,29 @@
 package gordle
 
-import "io"
+import (
+	"errors"
+	"io"
+)
 
-type GameOption func(*game)
+var (
+	GordleOptionErrorInvalidSolution = errors.New("The given solution must be X characters.")
+)
+
+type GameOption func(*game) error
 
 func WithInput(input io.Reader) GameOption {
-	return func(g *game) {
+	return func(g *game) error {
 		g.input = input
+		return nil
 	}
 }
 
-func WithWordLength(length int) GameOption {
-	return func(g *game) {
-		// Cannot be a word if length is 0 or 1
-		if length < 2 {
-			return
+func WithSolution(solution string) GameOption {
+	return func(g *game) error {
+		if len(solution) < 2 {
+			return GordleOptionErrorInvalidSolution
 		}
-		g.wordLength = length
+		g.solution = solution
+		return nil
 	}
 }

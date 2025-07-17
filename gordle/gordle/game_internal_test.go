@@ -4,33 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 )
-
-// Move this to an options test.
-func TestGameWordLengthOption(t *testing.T) {
-	type testCase struct {
-		length     int
-		wantResult int
-	}
-
-	testCases := map[string]testCase{
-		"Length of < 2 is ignored":          {length: 1, wantResult: DefaultWordLength},
-		"Given length is present on struct": {length: 6, wantResult: 6},
-	}
-
-	for _, tc := range testCases {
-		g := New(
-			WithWordLength(tc.length),
-		)
-
-		wordLength := g.wordLength
-
-		if wordLength != tc.wantResult {
-			t.Errorf("The expected word length for this game should be %d, but it is currently %d.", tc.wantResult, wordLength)
-		}
-	}
-}
 
 func TestGameAskInput(t *testing.T) {
 	type testCase struct {
@@ -51,7 +27,7 @@ func TestGameAskInput(t *testing.T) {
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
 			reader := bytes.NewBufferString(tc.input)
-			g := New(WithInput(reader))
+			g := New(os.Stdout, WithInput(reader))
 			guess, gotError := g.ask()
 
 			if string(guess) != tc.wantResult {
@@ -90,7 +66,7 @@ func TestGameAskValdiatesInputProperly(t *testing.T) {
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			g := New()
+			g := New(os.Stdout)
 			gotError := g.validateGuess([]rune(tc.guess))
 
 			if tc.wantError == nil && gotError != nil {
