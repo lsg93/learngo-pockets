@@ -21,11 +21,6 @@ type game struct {
 }
 
 var (
-	TTYGreen  = "\033[32m"
-	TTYYellow = "\033[33m"
-)
-
-var (
 	GordleOptionErrorNoSolution      = errors.New("A solution must be provided to play Gordle")
 	GordleOptionErrorInvalidSolution = errors.New("The given solution must be X characters.")
 )
