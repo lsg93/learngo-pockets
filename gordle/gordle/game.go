@@ -26,6 +26,11 @@ var (
 )
 
 var (
+	GordleOptionErrorNoSolution      = errors.New("A solution must be provided to play Gordle")
+	GordleOptionErrorInvalidSolution = errors.New("The given solution must be X characters.")
+)
+
+var (
 	AskErrorInvalidInput          = errors.New("The input given is invalid")
 	AskErrorNoInput               = errors.New("There needs to be input")
 	AskErrorOutsideCharacterLimit = errors.New("Your guess should be X characters long")
@@ -33,7 +38,6 @@ var (
 )
 
 func New(output io.Writer, options ...GameOption) *game {
-	fmt.Println("DEBUG: New function started!")
 
 	g := &game{
 		input:      os.Stdin,
@@ -42,24 +46,21 @@ func New(output io.Writer, options ...GameOption) *game {
 		dictionary: []string{"abcde", "hello", "你好你好好"},
 	}
 
-	fmt.Println("2")
-
-	fmt.Fprintf(os.Stdout, "DEBUG: Initial g.input type: %T\n", g.input)
-
-	fmt.Println("3")
-
 	for _, option := range options {
 		err := option(g)
 		if err != nil {
 			fmt.Println(err.Error())
-			output.Write([]byte(err.Error()))
+			output.Write([]byte(err.Error() + "\n"))
+			os.Exit(1)
 		}
 	}
 
-	fmt.Fprintf(os.Stdout, "DEBUG: New g.input type: %T\n", g.input)
+	if len(g.solution) == 0 {
+		output.Write([]byte(GordleOptionErrorNoSolution.Error() + "\n"))
+		os.Exit(1)
+	}
 
 	g.reader = bufio.NewReader(g.input)
-	fmt.Println("DEBUG: New function is about to return!")
 
 	return g
 }
@@ -91,7 +92,7 @@ func (g *game) validateGuess(guess []rune) error {
 }
 
 func (g *game) ask() (guess []rune, err error) {
-	fmt.Println("making guess")
+	g.output.Write([]byte("Enter a guess:" + "\n"))
 	input, _, err := g.reader.ReadLine()
 
 	str := strings.TrimSpace(string(input))
@@ -113,14 +114,12 @@ func (g *game) ask() (guess []rune, err error) {
 }
 
 func (g *game) Play() {
-	g.output.Write([]byte("Welcome to Gordle!"))
-	g.output.Write([]byte("Enter a guess:"))
+	g.output.Write([]byte("Welcome to Gordle!" + "\n"))
 
 	for i := 0; i < g.guesses; i++ {
 		guess, err := g.ask()
 
 		if err != nil {
-			fmt.Println(err.Error())
 			g.output.Write([]byte(err.Error()))
 			i-- // decrement loop
 			continue

@@ -1,12 +1,7 @@
 package gordle
 
 import (
-	"errors"
 	"io"
-)
-
-var (
-	GordleOptionErrorInvalidSolution = errors.New("The given solution must be X characters.")
 )
 
 type GameOption func(*game) error
