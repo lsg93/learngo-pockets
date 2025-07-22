@@ -5,55 +5,53 @@ import "testing"
 // For this
 // Let's test that:
 
-// Hints
-// Each hint should return a  string representation (Stringer)
+// "all characters in guess are in solution, but @ wrong position",
+// "all characters in guess are in solution, at right positions"
+// "some characters not found in solution, some in wrong position",
+// "some characters in wrong position, some in right position",
+// "handles scenarios when a character is duplicated - one is absent, and one is in wrong position"
+// "handles scenarios when a character is duplicated - one is wrong position, and one is in right position"
+// "handles scenarios when a character is duplicated - both in right position"
 
-// Feedback - should act like a service that turns characters from a guess into a hint.
-// For a valid guess, a slice of hints is returned
-// This slice of hints is joined into a byte slice/string that can be printed in the command line with colours.
-// Will need to test
-// That it determines positions correctly?
-// Returns instance of hint slices?
-
-func TestHintReturnsCorrectString(t *testing.T) {
+func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 	type testCase struct {
-		hint       hint
-		wantResult string
+		solution   string
+		guess      string
+		wantResult []hint
 	}
 
 	testCases := map[string]testCase{
-		"hint string returns no colour if its status is 'Absent'": {
-			hint:       hint{character: 'A', status: Absent},
-			wantResult: "[A]",
-		},
-		"hint string returns yellow if its status is 'WrongPosition'": {
-			hint:       hint{character: 'A', status: WrongPosition},
-			wantResult: TTYYellow + "[A]" + TTYReset,
-		},
-		"hint string returns green if its status is 'CorrectPosition'": {
-			hint:       hint{character: 'A', status: CorrectPosition},
-			wantResult: TTYGreen + "[A]" + TTYReset,
+		"all characters in guess not found in solution": {
+			solution:   "audio",
+			guess:      "steer",
+			wantResult: makeHints("steer", []int{0, 0, 0, 0, 0}),
 		},
 	}
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			str := tc.hint.String()
-			if tc.wantResult != str {
-				t.Errorf("The string representation of this hint is incorrect. Expected %s, got %s", str, tc.wantResult)
+			gotResult := computeFeedback(tc.guess, tc.solution)
+			for i, gotHint := range gotResult {
+				if compareHint(tc.wantResult[i], gotHint) == false {
+					t.Errorf("Hint %v received from feedback was different to expected result %v", gotHint, tc.wantResult[i])
+				}
 			}
 		})
 	}
 }
 
-func TestInvalidHintsPanic(t *testing.T) {
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Errorf("This test failed, the expected panic was not caught")
-		}
-	}()
-	h := hint{}
-	h.String()
-	t.Errorf("This test failed, the expected panic was not caught")
+func makeHints(guess string, statuses []int) []hint {
+	str := []rune(guess)
+	hints := []hint{}
+	for i, status := range statuses {
+		_ = append(hints, hint{character: str[i], status: hintStatus(status)})
+	}
+	return hints
+}
+
+func compareHint(hint1 hint, hint2 hint) bool {
+	if hint1.status != hint2.status || hint1.character != hint2.character {
+		return false
+	}
+	return true
 }
