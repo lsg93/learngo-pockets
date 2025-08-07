@@ -1,6 +1,10 @@
 package gordle
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+)
 
 // For this
 // Let's test that:
@@ -22,7 +26,7 @@ func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 
 	testCases := map[string]testCase{
 		"all characters in guess not found in solution": {
-			solution:   "audio",
+			solution:   "peers",
 			guess:      "steer",
 			wantResult: makeHints("steer", []int{0, 0, 0, 0, 0}),
 		},
@@ -30,7 +34,8 @@ func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			gotResult := computeFeedback(tc.guess, tc.solution)
+			gotResult := computeFeedback([]rune(tc.guess), []rune(tc.solution))
+			spew.Dump(gotResult)
 			for i, gotHint := range gotResult {
 				if compareHint(tc.wantResult[i], gotHint) == false {
 					t.Errorf("Hint %v received from feedback was different to expected result %v", gotHint, tc.wantResult[i])

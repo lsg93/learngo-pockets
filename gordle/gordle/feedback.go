@@ -1,131 +1,70 @@
 package gordle
 
 import (
-	"strings"
+	"slices"
 
 	"github.com/davecgh/go-spew/spew"
 )
 
-type feedback struct {
-	guess    []rune
-	seen     []rune
-	solution []rune
-	result   []hint
-}
+/**
+	Wordle operates on a two-pass algorithm.
+	We first analyse the 'correct' characters.
+	Then, we analyse the characters that are either absent, or in the wrong position.
+	Doing it any other way has pitfalls - the logic of whether a character is wrong/absent gets hairy.
+**/
 
-type analysedCharacter struct {
-	indexes     []int
-	atPositions []int
-}
+// spew.Dump(map[string]interface{}{
+// 	"guess char":    string(char),
+// 	"solution char": string(solution[i]),
+// 	"position":      i,
+// })
 
-func computeFeedback(guess []rune, solution string) []hint {
+func computeFeedback(guess []rune, solution []rune) []hint {
 
-	// using string type for dumping purposes - come back and fix this.
-	feedback := make([]hint, 5)
-	analysedCharacters := make(map[string]analysedCharacter)
+	hints := make([]hint, len(solution))
+	seen := []int{}
 
-	for i, ch := range guess {
-		str := string(ch)
-		v, ok := analysedCharacters[str]
-		if !ok {
-			analysedCharacters[str] = analysedCharacter{
-				indexes:     []int{i},
-				atPositions: getPositionsOfCharacterInSolution(str, solution),
+	for i, char := range guess {
+		if char == solution[i] {
+			// Create 'correct' hint at position in index
+			hints[i] = hint{character: char, status: CorrectPosition}
+			// Mark character as "seen" so it is ignored/unused in next pass.
+			seen = append(seen, i)
+		}
+	}
+
+	for i, char := range guess {
+		spew.Dump("second pass - character is " + string(char))
+		if slices.Contains(seen, i) {
+			spew.Dump("ignore character " + string(char) + " it has already been seen.")
+			continue
+		}
+
+		if slices.Contains(solution, char) {
+			// We know that the character in question is in the wrong position here.
+			hints[i] = hint{character: char, status: WrongPosition}
+			// If there are more occurences of this character in the solution, then we continue on without setting it to "seen".
+			if charOccursInSolutionAgain(char, solution) {
+				continue
 			}
 		} else {
-			// This needs to be fixed too, its not appending properly.
-			v.indexes = append(v.indexes, i)
+			hints[i] = hint{character: char, status: Absent}
 		}
+
+		seen = append(seen, i)
 	}
 
-	// spew.Dump("solution")
-	// spew.Dump(solution)
-	// spew.Dump("map")
-	spew.Dump(analysedCharacters)
-
-	// Nearly there, needs work
-	for ch, analysis := range analysedCharacters {
-		for _, position := range analysis.indexes {
-			runeCh := []rune(ch)[0]
-			feedback[position] = hint{character: runeCh, status: Absent}
-			if len(analysis.atPositions) > 0 {
-				for _, charIndex := range analysis.atPositions {
-					if strings.Index(solution, ch) == charIndex {
-						feedback[position] = hint{character: runeCh, status: CorrectPosition}
-					} else {
-						feedback[position] = hint{character: runeCh, status: WrongPosition}
-					}
-				}
-			}
-		}
-	}
-
-	spew.Dump(feedback)
-
-	return []hint{}
+	return hints
 }
 
-func getPositionsOfCharacterInSolution(char string, solution string) []int {
-	positions := []int{}
-	for i, ch := range solution {
-		// spew.Printf("letter %s \n", string(ch))
-		if string(ch) == char {
-			// spew.Printf("letter %s at index %d", string(ch), i)
-			positions = append(positions, i)
+func charOccursInSolutionAgain(char rune, solution []rune) bool {
+
+	count := 0
+	for _, r := range solution {
+		if r == char {
+			count++
 		}
 	}
-	return positions
-}
 
-// func computeFeedback(guess []rune, solution string) []hint {
-// 	feedback := &feedback{
-// 		guess:    guess,
-// 		seen:     []rune{},
-// 		solution: []rune(solution),
-// 		result:   make([]hint, 5),
-// 	}
-
-// 	spew.Dump("Solution is %s", string(feedback.solution))
-// 	spew.Dump("Guess is %s", string(feedback.guess))
-
-// 	feedback.computeAbsent()
-// 	feedback.computePositions()
-
-// 	spew.Dump("Feedback")
-// 	spew.Dump(map[string]interface{}{
-// 		"seen":   r2str(feedback.seen),
-// 		"result": feedback.result,
-// 	})
-
-// 	return feedback.makeResult()
-
-// }
-
-// func (f *feedback) computeAbsent() {
-
-// 	spew.Dump("Computing absent characters")
-
-// 	for i, ch := range f.guess {
-// 		if !slices.Contains(f.solution, ch) {
-// 			f.result[i] = hint{character: ch, status: Absent}
-// 			f.seen = append(f.seen, ch)
-// 		}
-// 	}
-// }
-
-// func (f *feedback) buildPositions() {
-// 	spew.Dump("Computing character positions")
-
-// }
-
-// func (f *feedback) makeResult() []hint {
-// 	return make([]hint, 5)
-// }
-
-func r2str(s []rune) []string {
-	var ss []string
-	for _, r := range s {
-		ss = append(ss, string(r))
-	}
-	return ss
+	return count > 1
 }

@@ -120,7 +120,7 @@ func (g *game) Play() {
 			continue
 		}
 
-		computeFeedback(guess, g.solution)
+		computeFeedback(guess, []rune(g.solution))
 
 		if string(guess) == g.solution {
 			g.output.Write([]byte("You won!"))
