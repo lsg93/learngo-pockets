@@ -1,11 +1,5 @@
 package gordle
 
-import (
-	"slices"
-
-	"github.com/davecgh/go-spew/spew"
-)
-
 /**
 	Wordle operates on a two-pass algorithm.
 	We first analyse the 'correct' characters.
@@ -19,52 +13,48 @@ import (
 // 	"position":      i,
 // })
 
+import (
+	"slices"
+)
+
 func computeFeedback(guess []rune, solution []rune) []hint {
 
 	hints := make([]hint, len(solution))
-	seen := []int{}
+	// We store whether a character has been processed or not as a simple boolean at its respective index in a slice.
+	computed := make([]bool, len(guess))
 
+	// Iterate over guess to find correct and absent characters.
 	for i, char := range guess {
-		if char == solution[i] {
+		if !slices.Contains(solution, char) {
+			hints[i] = hint{character: char, status: Absent}
+			computed[i] = true
+		} else if char == solution[i] {
 			// Create 'correct' hint at position in index
 			hints[i] = hint{character: char, status: CorrectPosition}
-			// Mark character as "seen" so it is ignored/unused in next pass.
-			seen = append(seen, i)
+			computed[i] = true
 		}
 	}
 
-	for i, char := range guess {
-		spew.Dump("second pass - character is " + string(char))
-		if slices.Contains(seen, i) {
-			spew.Dump("ignore character " + string(char) + " it has already been seen.")
+	// Iterate over guess again to find characters that exist, but are in the wrong position.
+	for i, gChar := range guess {
+		// No need to worry about characters that have already been processed.
+		if computed[i] {
 			continue
 		}
 
-		if slices.Contains(solution, char) {
-			// We know that the character in question is in the wrong position here.
-			hints[i] = hint{character: char, status: WrongPosition}
-			// If there are more occurences of this character in the solution, then we continue on without setting it to "seen".
-			if charOccursInSolutionAgain(char, solution) {
-				continue
-			}
-		} else {
-			hints[i] = hint{character: char, status: Absent}
-		}
+		// We want to ensure that we don't mark something as being in the wrong position just because it exists in the solution.
+		// We need to be confident that we're only marking as the wrong solution if it doesnt exist anywhere further in the slice.
+		// We look at the remaining characters of a solution, and check how many times our guess character occurs.
+		// If it has less occurences than the remaining chars, then we can safely mark it as being in the wrong position, otherwise we can call it absent.
+		// Good ref here - https://github.com/jedib0t/go-wordle/blob/main/wordle/attempt.go
 
-		seen = append(seen, i)
+		// occurences := strings.Count(string(gChar), remainingSolutionChars(solution))
+
 	}
 
 	return hints
 }
 
-func charOccursInSolutionAgain(char rune, solution []rune) bool {
+func remainingSolutionChars(solution []rune) int {
 
-	count := 0
-	for _, r := range solution {
-		if r == char {
-			count++
-		}
-	}
-
-	return count > 1
 }

@@ -28,14 +28,32 @@ func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 		"all characters in guess not found in solution": {
 			solution:   "peers",
 			guess:      "steer",
-			wantResult: makeHints("steer", []int{0, 0, 0, 0, 0}),
+			wantResult: makeHints("steer", []hintStatus{WrongPosition, Absent, CorrectPosition, WrongPosition, WrongPosition}),
 		},
+		// "test case 2": {
+		// 	solution:   "boost",
+		// 	guess:      "robot",
+		// 	wantResult: makeHints("robot", []hintStatus{Absent, CorrectPosition, WrongPosition, WrongPosition, CorrectPosition}),
+		// },
+		// "test case 3": {
+		// 	solution:   "apple",
+		// 	guess:      "paper",
+		// 	wantResult: makeHints("paper", []hintStatus{WrongPosition, WrongPosition, CorrectPosition, WrongPosition, Absent}),
+		// },
+		// "test case 4": {
+		// 	solution:   "apple",
+		// 	guess:      "paper",
+		// 	wantResult: makeHints("paper", []hintStatus{WrongPosition, WrongPosition, CorrectPosition, WrongPosition, Absent}),
+		// },
 	}
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
 			gotResult := computeFeedback([]rune(tc.guess), []rune(tc.solution))
+			spew.Dump("got")
 			spew.Dump(gotResult)
+			spew.Dump("want")
+			spew.Dump(tc.wantResult)
 			for i, gotHint := range gotResult {
 				if compareHint(tc.wantResult[i], gotHint) == false {
 					t.Errorf("Hint %v received from feedback was different to expected result %v", gotHint, tc.wantResult[i])
@@ -45,11 +63,11 @@ func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 	}
 }
 
-func makeHints(guess string, statuses []int) []hint {
+func makeHints(guess string, statuses []hintStatus) []hint {
 	str := []rune(guess)
 	hints := []hint{}
 	for i, status := range statuses {
-		_ = append(hints, hint{character: str[i], status: hintStatus(status)})
+		hints = append(hints, hint{character: str[i], status: hintStatus(status)})
 	}
 	return hints
 }
