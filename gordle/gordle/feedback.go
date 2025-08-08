@@ -36,25 +36,16 @@ func computeFeedback(guess []rune, solution []rune) []hint {
 	}
 
 	// Iterate over guess again to find characters that exist, but are in the wrong position.
-	for i, gChar := range guess {
+	// We can be confident that the characters in this loop exist in the solution, as we've handled absents above.
+
+	// I'm sure this can fall over - it seems too simple.
+	for i, char := range guess {
 		// No need to worry about characters that have already been processed.
 		if computed[i] {
 			continue
 		}
-
-		// We want to ensure that we don't mark something as being in the wrong position just because it exists in the solution.
-		// We need to be confident that we're only marking as the wrong solution if it doesnt exist anywhere further in the slice.
-		// We look at the remaining characters of a solution, and check how many times our guess character occurs.
-		// If it has less occurences than the remaining chars, then we can safely mark it as being in the wrong position, otherwise we can call it absent.
-		// Good ref here - https://github.com/jedib0t/go-wordle/blob/main/wordle/attempt.go
-
-		// occurences := strings.Count(string(gChar), remainingSolutionChars(solution))
-
+		hints[i] = hint{character: char, status: WrongPosition}
 	}
 
 	return hints
-}
-
-func remainingSolutionChars(solution []rune) int {
-
 }
