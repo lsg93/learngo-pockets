@@ -23,7 +23,7 @@ func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 	}
 
 	testCases := map[string]testCase{
-		"all characters in guess not found in solution": {
+		"test case 1": {
 			solution:   "peers",
 			guess:      "steer",
 			wantResult: makeHints("steer", []hintStatus{WrongPosition, Absent, CorrectPosition, WrongPosition, WrongPosition}),
@@ -40,8 +40,8 @@ func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 		},
 		"test case 4": {
 			solution:   "apple",
-			guess:      "paper",
-			wantResult: makeHints("paper", []hintStatus{WrongPosition, WrongPosition, CorrectPosition, WrongPosition, Absent}),
+			guess:      "papal",
+			wantResult: makeHints("papal", []hintStatus{WrongPosition, WrongPosition, CorrectPosition, Absent, WrongPosition}),
 		},
 	}
 

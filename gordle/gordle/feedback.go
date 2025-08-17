@@ -1,5 +1,9 @@
 package gordle
 
+import (
+	"strings"
+)
+
 /**
 	Wordle operates on a two-pass algorithm.
 	We first analyse the 'correct' characters.
@@ -13,39 +17,41 @@ package gordle
 // 	"position":      i,
 // })
 
-import (
-	"slices"
-)
-
 func computeFeedback(guess []rune, solution []rune) []hint {
 
 	hints := make([]hint, len(solution))
-	// We store whether a character has been processed or not as a simple boolean at its respective index in a slice.
-	computed := make([]bool, len(guess))
+	used := make([]bool, len(solution))
 
-	// Iterate over guess to find correct and absent characters.
+	// Iterate over guess to find correct characters.
 	for i, char := range guess {
-		if !slices.Contains(solution, char) {
-			hints[i] = hint{character: char, status: Absent}
-			computed[i] = true
-		} else if char == solution[i] {
-			// Create 'correct' hint at position in index
+		if solution[i] == char {
 			hints[i] = hint{character: char, status: CorrectPosition}
-			computed[i] = true
 		}
 	}
 
 	// Iterate over guess again to find characters that exist, but are in the wrong position.
-	// We can be confident that the characters in this loop exist in the solution, as we've handled absents above.
-
-	// I'm sure this can fall over - it seems too simple.
 	for i, char := range guess {
-		// No need to worry about characters that have already been processed.
-		if computed[i] {
+		if hints[i].status == CorrectPosition {
 			continue
 		}
-		hints[i] = hint{character: char, status: WrongPosition}
+		for j, solutionChar := range solution {
+			if !used[j] && char == solutionChar {
+				hints[i] = hint{character: char, status: WrongPosition}
+				used[j] = true
+				break
+			}
+		}
+	}
+
+	for i := range hints {
+		if hints[i].status == Undefined {
+			hints[i] = hint{character: guess[i], status: Absent}
+		}
 	}
 
 	return hints
+}
+
+func getCharOccurences(charToCount rune, slice []rune) int {
+	return strings.Count(string(slice), string(charToCount))
 }
