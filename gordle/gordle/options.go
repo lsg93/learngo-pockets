@@ -25,7 +25,7 @@ func WithSolution(solution string) GameOption {
 		if len(solution) < 2 {
 			return GordleOptionErrorInvalidSolution
 		}
-		g.solution = solution
+		g.solution = []rune(solution)
 		return nil
 	}
 }

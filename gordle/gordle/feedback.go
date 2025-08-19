@@ -11,13 +11,9 @@ import (
 	Doing it any other way has pitfalls - the logic of whether a character is wrong/absent gets hairy.
 **/
 
-// spew.Dump(map[string]interface{}{
-// 	"guess char":    string(char),
-// 	"solution char": string(solution[i]),
-// 	"position":      i,
-// })
+type feedback []hint
 
-func computeFeedback(guess []rune, solution []rune) []hint {
+func computeFeedback(guess []rune, solution []rune) feedback {
 
 	hints := make([]hint, len(solution))
 	used := make([]bool, len(solution))
@@ -52,6 +48,10 @@ func computeFeedback(guess []rune, solution []rune) []hint {
 	return hints
 }
 
-func getCharOccurences(charToCount rune, slice []rune) int {
-	return strings.Count(string(slice), string(charToCount))
+func (fb feedback) String() string {
+	feedbackStr := strings.Builder{}
+	for _, hint := range fb {
+		feedbackStr.WriteString(hint.String())
+	}
+	return feedbackStr.String()
 }

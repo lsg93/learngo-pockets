@@ -16,7 +16,7 @@ type game struct {
 	output     io.Writer
 	reader     *bufio.Reader
 	guesses    int
-	solution   string
+	solution   []rune
 	dictionary []string
 }
 
@@ -38,7 +38,7 @@ func New(output io.Writer, options ...GameOption) *game {
 		input:      os.Stdin,
 		output:     output,
 		guesses:    6, // Could make this an option, but it's not wordle if it has more/less possible guesses!
-		dictionary: []string{"abcde", "hello", "你好你好好"},
+		dictionary: []string{"abcde"},
 	}
 
 	for _, option := range options {
@@ -115,18 +115,18 @@ func (g *game) Play() {
 		guess, err := g.ask()
 
 		if err != nil {
-			g.output.Write([]byte(err.Error()))
+			g.output.Write([]byte(err.Error() + "\n"))
 			i-- // decrement loop
 			continue
 		}
 
-		computeFeedback(guess, []rune(g.solution))
+		feedback := computeFeedback(guess, g.solution)
 
-		if string(guess) == g.solution {
+		if string(guess) == string(g.solution) {
 			g.output.Write([]byte("You won!"))
 			return
 		} else {
-			g.output.Write([]byte(string(guess)))
+			g.output.Write([]byte(feedback.String() + "\n"))
 		}
 
 	}
