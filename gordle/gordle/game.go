@@ -20,8 +20,11 @@ type game struct {
 	dictionary []string
 }
 
+const DEFAULT_CORPUS_PATH = "./gordle/corpus.txt"
+
 var (
-	GordleOptionErrorNoSolution      = errors.New("A solution must be provided to play Gordle")
+	GordleOptionNoDictionary         = errors.New("A dictionary must be provided to play Gordle.")
+	GordleOptionErrorNoSolution      = errors.New("A solution must be provided to play Gordle.")
 	GordleOptionErrorInvalidSolution = errors.New("The given solution must be X characters.")
 )
 
@@ -35,10 +38,9 @@ var (
 func New(output io.Writer, options ...GameOption) *game {
 
 	g := &game{
-		input:      os.Stdin,
-		output:     output,
-		guesses:    6, // Could make this an option, but it's not wordle if it has more/less possible guesses!
-		dictionary: []string{"abcde"},
+		input:   os.Stdin,
+		output:  output,
+		guesses: 6, // Could make this an option, but it's not wordle if it has more/less possible guesses!
 	}
 
 	for _, option := range options {
@@ -48,6 +50,18 @@ func New(output io.Writer, options ...GameOption) *game {
 			output.Write([]byte(err.Error() + "\n"))
 			os.Exit(1)
 		}
+	}
+
+	if len(g.dictionary) == 0 {
+		corpusLoader := &corpus{fs: &gordleFs{}}
+		dict, err := corpusLoader.loadCorpus(DEFAULT_CORPUS_PATH)
+
+		if err != nil {
+			output.Write([]byte(err.Error() + "\n"))
+			os.Exit(1)
+		}
+
+		g.dictionary = dict
 	}
 
 	if len(g.solution) == 0 {
@@ -122,12 +136,11 @@ func (g *game) Play() {
 
 		feedback := computeFeedback(guess, g.solution)
 
+		g.output.Write([]byte(feedback.String() + "\n"))
+
 		if string(guess) == string(g.solution) {
 			g.output.Write([]byte("You won!"))
 			return
-		} else {
-			g.output.Write([]byte(feedback.String() + "\n"))
 		}
-
 	}
 }

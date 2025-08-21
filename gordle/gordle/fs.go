@@ -1,11 +1,12 @@
 package gordle
 
-import "os"
-
-// A simple interface for file system operations to aid testing.
+import (
+	"os"
+)
 
 type FileSystem interface {
 	FileExists(path string) bool
+	ReadFile(path string) ([]byte, error)
 }
 
 type gordleFs struct{}
@@ -18,10 +19,10 @@ func (fs *gordleFs) FileExists(path string) bool {
 	return true
 }
 
-type testFs struct {
-	fileExists bool
-}
-
-func (fs *testFs) FileExists(path string) bool {
-	return fs.fileExists
+func (fs *gordleFs) ReadFile(path string) ([]byte, error) {
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
 }
