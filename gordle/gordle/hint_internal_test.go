@@ -2,19 +2,6 @@ package gordle
 
 import "testing"
 
-// For this
-// Let's test that:
-
-// Hints
-// Each hint should return a  string representation (Stringer)
-
-// Feedback - should act like a service that turns characters from a guess into a hint.
-// For a valid guess, a slice of hints is returned
-// This slice of hints is joined into a byte slice/string that can be printed in the command line with colours.
-// Will need to test
-// That it determines positions correctly?
-// Returns instance of hint slices?
-
 func TestHintReturnsCorrectString(t *testing.T) {
 	type testCase struct {
 		hint       hint
@@ -57,8 +44,3 @@ func TestInvalidHintsPanic(t *testing.T) {
 	h.String()
 	t.Errorf("This test failed, the expected panic was not caught")
 }
-
-// func TestFeedbackServiceComputesHints()
-// {
-
-// }
