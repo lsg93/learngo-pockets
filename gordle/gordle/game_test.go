@@ -2,7 +2,6 @@ package gordle_test
 
 import (
 	"bytes"
-	"fmt"
 	"learngo-pockets/gordle/gordle"
 	"testing"
 )
@@ -16,15 +15,6 @@ type testValidGuess struct {
 	guess   string
 	colours []string
 }
-
-//  testCases := map[string]testCase {
-// 	"user completes game after a succesful guess of the solution" : {}
-// 	"user loses game after exhausting max number of guesses" : {}
-// 	"user is warned about empty input"
-// 	"user is warned about input that is not in the dictionary"
-// 	"user is warned about numeric input"
-// 	"user is warned about usage of special characters"
-// }
 
 func TestGordleGameWin(t *testing.T) {
 	type testCase struct {
@@ -62,26 +52,6 @@ func TestGordleGameWin(t *testing.T) {
 			)
 
 			g.Play()
-
-			fmt.Println(output)
-
-			// Simulate terminal input somehow.
-			// For each input guess, assert that the output is also valid?
-
 		})
 	}
 }
-
-func parseValidGuessOutput(output string, guess testValidGuess) string {
-	// TODO
-
-	return ""
-}
-
-// func TestGordleGameLoss(t *testing.T) {
-// 	// Test Loss scenarios here.
-// }
-
-// func TestGordleGameInput() {
-// 	// Test invalid feedback attempts here.
-// }

@@ -3,10 +3,29 @@ package gordle
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"os"
+	"slices"
 	"testing"
 )
+
+func TestGameSetupLoadsDefaultCorpusIfNoneProvidedAsOption(t *testing.T) {
+	defaultCorpus := []string{"salet", "audio", "light"}
+	fs := &testFs{fileExists: true, fileContents: defaultCorpus}
+	g := New(os.Stdout, WithFileSystem(fs))
+
+	if !slices.Equal(defaultCorpus, g.dictionary) {
+		t.Errorf("Since no dictionary was provided, the dictionary used for the game should be the provided dictionary.")
+	}
+}
+
+func TestGameSetupPicksRandomSolutionFromDictionaryIfNoneProvidedAsOption(t *testing.T) {
+	dictionary := []string{"salet", "audio", "light"}
+	g := New(os.Stdout, WithDictionary(dictionary))
+
+	if !slices.Contains(dictionary, string(g.solution)) {
+		t.Errorf("Since no solution was provided, the solution should have been selected from the provided dictionary.")
+	}
+}
 
 func TestGameAskInput(t *testing.T) {
 	type testCase struct {
@@ -27,7 +46,7 @@ func TestGameAskInput(t *testing.T) {
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
 			reader := bytes.NewBufferString(tc.input)
-			g := New(os.Stdout, WithInput(reader))
+			g := New(&bytes.Buffer{}, WithDictionary([]string{"tests"}), WithInput(reader))
 			guess, gotError := g.ask()
 
 			if string(guess) != tc.wantResult {
@@ -48,7 +67,7 @@ func TestGameAskInput(t *testing.T) {
 	}
 }
 
-func TestGameAskValdiatesInputProperly(t *testing.T) {
+func TestGameAskValidatesInputProperly(t *testing.T) {
 	type testCase struct {
 		wantError error
 		guess     string
@@ -66,12 +85,10 @@ func TestGameAskValdiatesInputProperly(t *testing.T) {
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			g := New(os.Stdout)
+			g := New(os.Stdout, WithDictionary([]string{"hello", "你好你好好"}))
 			gotError := g.validateGuess([]rune(tc.guess))
 
 			if tc.wantError == nil && gotError != nil {
-				fmt.Println(tc.guess)
-				fmt.Println(gotError.Error())
 				t.Errorf("An error occurred, but none was supposed to.")
 			}
 

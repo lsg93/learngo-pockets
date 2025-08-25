@@ -3,8 +3,8 @@ package gordle
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"slices"
 	"strings"
@@ -12,6 +12,7 @@ import (
 )
 
 type game struct {
+	fs         FileSystem
 	input      io.Reader
 	output     io.Writer
 	reader     *bufio.Reader
@@ -40,20 +41,20 @@ func New(output io.Writer, options ...GameOption) *game {
 	g := &game{
 		input:   os.Stdin,
 		output:  output,
+		fs:      &gordleFs{},
 		guesses: 6, // Could make this an option, but it's not wordle if it has more/less possible guesses!
 	}
 
 	for _, option := range options {
 		err := option(g)
 		if err != nil {
-			fmt.Println(err.Error())
 			output.Write([]byte(err.Error() + "\n"))
 			os.Exit(1)
 		}
 	}
 
 	if len(g.dictionary) == 0 {
-		corpusLoader := &corpus{fs: &gordleFs{}}
+		corpusLoader := &corpus{fs: g.fs}
 		dict, err := corpusLoader.loadCorpus(DEFAULT_CORPUS_PATH)
 
 		if err != nil {
@@ -65,8 +66,12 @@ func New(output io.Writer, options ...GameOption) *game {
 	}
 
 	if len(g.solution) == 0 {
-		output.Write([]byte(GordleOptionErrorNoSolution.Error() + "\n"))
-		os.Exit(1)
+		if len(g.dictionary) == 0 {
+			output.Write([]byte(GordleOptionNoDictionary.Error() + "\n"))
+			os.Exit(1)
+		}
+		index := rand.Intn(len(g.dictionary))
+		g.solution = []rune(g.dictionary[index])
 	}
 
 	g.reader = bufio.NewReader(g.input)
@@ -113,12 +118,6 @@ func (g *game) ask() (guess []rune, err error) {
 		return nil, err
 	}
 
-	vErr := g.validateGuess([]rune(str))
-
-	if vErr != nil {
-		return nil, vErr
-	}
-
 	return []rune(str), nil
 }
 
@@ -127,6 +126,13 @@ func (g *game) Play() {
 
 	for i := 0; i < g.guesses; i++ {
 		guess, err := g.ask()
+
+		vErr := g.validateGuess(guess)
+
+		if vErr != nil {
+			g.output.Write([]byte(err.Error() + "\n"))
+			continue
+		}
 
 		if err != nil {
 			g.output.Write([]byte(err.Error() + "\n"))

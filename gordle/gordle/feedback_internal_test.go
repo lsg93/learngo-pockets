@@ -4,17 +4,6 @@ import (
 	"testing"
 )
 
-// For this
-// Let's test that:
-
-// "all characters in guess are in solution, but @ wrong position",
-// "all characters in guess are in solution, at right positions"
-// "some characters not found in solution, some in wrong position",
-// "some characters in wrong position, some in right position",
-// "handles scenarios when a character is duplicated - one is absent, and one is in wrong position"
-// "handles scenarios when a character is duplicated - one is wrong position, and one is in right position"
-// "handles scenarios when a character is duplicated - both in right position"
-
 func TestFeedbackServiceGeneratesHintsBasedOnGuess(t *testing.T) {
 	type testCase struct {
 		solution   string

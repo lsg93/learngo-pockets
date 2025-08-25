@@ -8,7 +8,17 @@ type GameOption func(*game) error
 
 func WithDictionary(dictionary []string) GameOption {
 	return func(g *game) error {
+		if len(dictionary) < 1 {
+			return GordleOptionNoDictionary
+		}
 		g.dictionary = dictionary
+		return nil
+	}
+}
+
+func WithFileSystem(fs FileSystem) GameOption {
+	return func(g *game) error {
+		g.fs = fs
 		return nil
 	}
 }
