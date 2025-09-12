@@ -23,7 +23,7 @@ func ParseDecimal(input string) (Decimal, error) {
 	// unused variable is presence of separator - will probably see usage in commented out function.
 	lhs, rhs, _ := strings.Cut(input, ".")
 
-	vErr := validateInput(lhs + rhs)
+	vErr := validateDecimalInput(lhs + rhs)
 
 	if vErr != nil {
 		return Decimal{}, vErr
@@ -65,7 +65,7 @@ func (d *Decimal) simplifyMantissa() {
 	d.integer = simplified
 }
 
-func validateInput(joined string) error {
+func validateDecimalInput(joined string) error {
 	if len(joined) == 0 {
 		return DecimalParseErrorNoInput
 	}
