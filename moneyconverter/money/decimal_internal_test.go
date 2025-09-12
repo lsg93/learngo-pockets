@@ -25,31 +25,31 @@ func TestDecimalParse(t *testing.T) {
 			expectedResult: Decimal{integer: 1234, precision: 2},
 			expectedErr:    nil,
 		},
-		// "Handles 0.XX input": {
-		// 	input:          "0.12",
-		// 	expectedResult: "0.12",
-		// 	expectedErr:    nil,
-		// },
-		// "Handles X.00 input": {
-		// 	input:          "1.00",
-		// 	expectedResult: "1",
-		// 	expectedErr:    nil,
-		// },
-		// "Handles leading 0's": {
-		// 	input:          "01.23",
-		// 	expectedResult: "1.23",
-		// 	expectedErr:    nil,
-		// },
-		// "Handles trailing 0's": {
-		// 	input:          "32.10",
-		// 	expectedResult: "32.1",
-		// 	expectedErr:    nil,
-		// },
-		// "Handles separators in integer parts" : {
+		"Handles 0.XX input": {
+			input:          "0.12",
+			expectedResult: Decimal{integer: 12, precision: 2},
+			expectedErr:    nil,
+		},
+		"Handles X.00 input": {
+			input:          "1.00",
+			expectedResult: Decimal{integer: 1, precision: 0},
+			expectedErr:    nil,
+		},
+		"Handles leading 0's": {
+			input:          "01.23",
+			expectedResult: Decimal{integer: 123, precision: 2},
+			expectedErr:    nil,
+		},
+		"Handles trailing 0's": {
+			input:          "32.10",
+			expectedResult: Decimal{integer: 321, precision: 1},
+			expectedErr:    nil,
+		},
+		// "Handles separators in integer parts": {
 		// 	input:          "123,456.78",
 		// 	expectedResult: "123.45",
 		// 	expectedErr:    nil,
-		// }
+		// },
 		// "Handles integer parts with length > 2": {
 		// 	input:          "123.45",
 		// 	expectedResult: "123.45",

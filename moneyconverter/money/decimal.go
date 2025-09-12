@@ -21,23 +21,48 @@ type Decimal struct {
 // Not sure as of yet why we're doing this, but I'm sure it will be apparent as we progress!
 func ParseDecimal(input string) (Decimal, error) {
 	// unused variable is presence of separator - will probably see usage in commented out function.
-	i, m, _ := strings.Cut(input, ".")
+	lhs, rhs, _ := strings.Cut(input, ".")
 
-	vErr := validateInput(i + m)
+	vErr := validateInput(lhs + rhs)
 
 	if vErr != nil {
 		return Decimal{}, vErr
 	}
 
-	integer, err := strconv.ParseInt(i+m, 10, 64)
+	integer, err := strconv.ParseInt(lhs+rhs, 10, 64)
 
 	if err != nil {
 		return Decimal{}, err
 	}
 
-	return Decimal{integer: integer, precision: len(m)}, nil
+	res := Decimal{integer: integer, precision: len(rhs)}
+	res.simplifyMantissa()
 
-	// return Decimal{}, nil
+	return res, nil
+}
+
+// We don't need trailing zeroes when dealing with precision.
+// This function handles that.
+func (d *Decimal) simplifyMantissa() {
+	// loop through each integer, going backwards
+	// if integer == 0, remove it, and decrement the precision property.
+
+	str := strconv.Itoa(int(d.integer))
+
+	for i := len(str) - 1; i >= 0; i-- {
+		if string(str[i]) == "0" {
+			str = str[0:i]
+			d.precision--
+		}
+	}
+
+	simplified, err := strconv.ParseInt(str, 10, 64)
+
+	if err != nil {
+		return
+	}
+
+	d.integer = simplified
 }
 
 func validateInput(joined string) error {
