@@ -5,6 +5,27 @@ import (
 	"unicode"
 )
 
+// List of currencies in currencies.json obtained from here : https://github.com/ourworldincode/currency/blob/main/currencies.json
+
+type CurrencyParser struct {
+	currencies []Currency
+}
+
+// func NewCurrencyParser() CurrencyParser {
+// 	return
+// }
+
+func (parser *CurrencyParser) ParseCurrency(input string) (Currency, error) {
+
+	err := validateCurrencyInput(input)
+
+	if err != nil {
+		return Currency{}, err
+	}
+
+	return Currency{isoCode: strings.ToUpper(input)}, nil
+}
+
 type Currency struct {
 	isoCode   string
 	precision byte
@@ -16,11 +37,17 @@ var (
 
 func ParseCurrency(input string) (Currency, error) {
 
-	if validateCurrencyInput(input) != nil {
-		// ???
+	err := validateCurrencyInput(input)
+
+	if err != nil {
+		return Currency{}, err
 	}
 
 	return Currency{isoCode: strings.ToUpper(input)}, nil
+}
+
+func getCurrencyByCode() {
+
 }
 
 func validateCurrencyInput(input string) error {

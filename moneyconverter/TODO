@@ -1,1 +1,2 @@
 Continue working on currency parser.
+We want a DI approach that can handle different data sources and different data maps.
