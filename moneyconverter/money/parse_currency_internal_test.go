@@ -22,11 +22,13 @@ func TestParseCurrencySuccesfully(t *testing.T) {
 		},
 	}
 
+	parser := setupTestCurrencyParser()
+
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			gotResult, gotError := ParseCurrency(tc.input)
+			gotResult, gotError := parser.ParseCurrency(tc.input)
 
-			if gotError != nil {
+			if gotError != "" {
 				t.Errorf("An error %s occurred when none was expected.", gotError)
 			}
 
@@ -58,11 +60,14 @@ func TestParseCurrencyInputValidation(t *testing.T) {
 		},
 	}
 
-	for desc, tc := range testCases {
-		t.Run(desc, func(t *testing.T) {
-			_, gotError := ParseCurrency(tc.input)
+	parser := setupTestCurrencyParser()
 
-			if gotError == nil {
+	for desc, tc := range testCases {
+
+		t.Run(desc, func(t *testing.T) {
+			_, gotError := parser.ParseCurrency(tc.input)
+
+			if gotError == "" {
 				t.Errorf("No error occurred, but the error %v was expected", tc.expectedError)
 			}
 

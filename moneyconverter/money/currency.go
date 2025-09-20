@@ -7,52 +7,56 @@ import (
 
 // List of currencies in currencies.json obtained from here : https://github.com/ourworldincode/currency/blob/main/currencies.json
 
-type CurrencyParser struct {
-	currencies []Currency
-}
-
-// func NewCurrencyParser() CurrencyParser {
-// 	return
-// }
-
-func (parser *CurrencyParser) ParseCurrency(input string) (Currency, error) {
-
-	err := validateCurrencyInput(input)
-
-	if err != nil {
-		return Currency{}, err
-	}
-
-	return Currency{isoCode: strings.ToUpper(input)}, nil
-}
+var (
+	CurrencyDataNotLoadedError    = Error("No currencies found")
+	CurrencyDataReadError         = Error("Could not get list of currencies")
+	CurrencyNotFoundError         = Error("The given input could not be found")
+	CurrencyInputValidationError  = Error("The provided input was not valid")
+	CurrencyParseInvalidCodeError = Error("The given code does not match an ISO 4217 currency code.")
+)
 
 type Currency struct {
 	isoCode   string
 	precision byte
 }
 
-var (
-	CurrencyParseInvalidCodeError = Error("The given code does not match an ISO 4217 currency code.")
-)
+type CurrencyList = map[string]Currency
 
-func ParseCurrency(input string) (Currency, error) {
+type CurrencyParser struct {
+	currencies CurrencyList
+}
+
+func NewCurrencyParser(data CurrencyData) (*CurrencyParser, Error) {
+	currencies, err := data.getCurrencies()
+
+	if err != nil {
+		return &CurrencyParser{}, CurrencyDataReadError
+	}
+
+	return &CurrencyParser{currencies: currencies}, ""
+
+}
+
+func (parser *CurrencyParser) ParseCurrency(input string) (Currency, Error) {
 
 	err := validateCurrencyInput(input)
 
 	if err != nil {
-		return Currency{}, err
+		return Currency{}, CurrencyDataReadError
 	}
 
-	return Currency{isoCode: strings.ToUpper(input)}, nil
-}
+	_, exists := parser.currencies[strings.ToUpper(input)]
 
-func getCurrencyByCode() {
+	if !exists {
+		return Currency{}, CurrencyInputValidationError
+	}
 
+	return Currency{isoCode: strings.ToUpper(input)}, ""
 }
 
 func validateCurrencyInput(input string) error {
 	if len(input) != 3 {
-		return CurrencyParseInvalidCodeError
+		return Error(CurrencyParseInvalidCodeError)
 	}
 
 	// Go has no native way of checking that a letter is english,
@@ -63,7 +67,7 @@ func validateCurrencyInput(input string) error {
 	for _, c := range input {
 		if c > unicode.MaxASCII {
 			if !unicode.IsLetter(c) {
-				return CurrencyParseInvalidCodeError
+				return Error(CurrencyParseInvalidCodeError)
 			}
 		}
 	}

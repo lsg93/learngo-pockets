@@ -1,32 +1,22 @@
 package money
 
 import (
+	"strings"
 	"testing"
 )
 
 // Takes in input and returns a struct with expected data accessible somehow.
 // Fails with malformed data?
 
-type testCurrencyService struct {
-	currencies map[string]Currency
-}
+func TestCurrencyParserInitialisesSuccessfullyWithJSONData(t *testing.T) {
 
-func (cs *testCurrencyService) getCurrencies() {
-	return cs.currencies
-}
+	jsonStub := `{"GBP": {"decimals": 2}}`
+	data := NewJSONCurrencyData(strings.NewReader(jsonStub))
 
-func TestCurrencyParserInitialisesSuccessfullyWithExpectedData(t *testing.T) {
+	parser, gotError := NewCurrencyParser(data)
 
-	stub := map[string]Currency{
-		"GBP": Currency{isoCode: "GBP", decimal: 2},
-	}
-
-	service := &testCurrencyService{currencies: stub}
-
-	parser, gotError := NewCurrencyParser(service)
-
-	if gotError != nil {
-		t.Errorf("An error %v occurred when none was expected", gotError)
+	if gotError != "" {
+		t.Fatalf("An error %v occurred when none was expected", gotError)
 	}
 
 	_, exists := parser.currencies["GBP"]
@@ -36,21 +26,32 @@ func TestCurrencyParserInitialisesSuccessfullyWithExpectedData(t *testing.T) {
 	}
 }
 
-// func TestCurrencyParserFailsToInitialise() {
-// 	type testCase struct {
-// 		input         string
-// 		expectedError error
-// 	}
+func TestCurrencyParserFailsToInitialise(t *testing.T) {
+	type testCase struct {
+		input         string
+		expectedError error
+	}
 
-// 	testCases := map[string]testCase{
-// 		"With no data provided" : {
-// 			input : `{}`,
-// 			expectedError: ,
-// 		}
-// 		"With malformed data provided" : {
-// 			input : `{}`,
-// 			expectedError: ,
-// 		}
+	testCases := map[string]testCase{
+		"With empty JSON data provided": {
+			input:         `{}`,
+			expectedError: CurrencyDataNotLoadedError,
+		},
+		"With malformed JSON data provided": {
+			input:         `{"abc" : {"def" : "ghi"}}`,
+			expectedError: CurrencyDataReadError,
+		},
+	}
 
-// 	}
-// }
+	for desc, tc := range testCases {
+		t.Run(desc, func(t *testing.T) {
+			data := NewJSONCurrencyData(strings.NewReader(tc.input))
+			parser, gotError := NewCurrencyParser(data)
+
+			if gotError != "" {
+				return
+			}
+
+		})
+	}
+}
