@@ -1,6 +1,7 @@
 package money
 
 import (
+	"errors"
 	"strings"
 	"unicode"
 )
@@ -8,16 +9,36 @@ import (
 // List of currencies in currencies.json obtained from here : https://github.com/ourworldincode/currency/blob/main/currencies.json
 
 var (
-	CurrencyDataNotLoadedError    = Error("No currencies found")
-	CurrencyDataReadError         = Error("Could not get list of currencies")
-	CurrencyNotFoundError         = Error("The given input could not be found")
-	CurrencyInputValidationError  = Error("The provided input was not valid")
-	CurrencyParseInvalidCodeError = Error("The given code does not match an ISO 4217 currency code.")
+	errCurrencyDataNotLoaded    = errors.New("No currencies found")
+	errCurrencyListEmpty        = errors.New("The provided currency data is empty")
+	errCurrencyValidationError  = errors.New("Currency object is invalid")
+	errCurrencyDataRead         = errors.New("Could not get list of currencies")
+	errCurrencyNotFound         = errors.New("The given input could not be found")
+	errCurrencyInputValidation  = errors.New("The provided input was not valid")
+	errCurrencyParseInvalidCode = errors.New("The given code does not match an ISO 4217 currency code.")
+)
+
+var (
+	CurrencyDataNotLoadedError    = errCurrencyDataNotLoaded
+	CurrencyDataReadError         = errCurrencyDataRead
+	CurrencyNotFoundError         = errCurrencyNotFound
+	CurrencyInputValidationError  = errCurrencyInputValidation
+	CurrencyListEmptyError        = errCurrencyListEmpty
+	CurrencyParseInvalidCodeError = errCurrencyParseInvalidCode
+	CurrencyValidationError       = errCurrencyValidationError
 )
 
 type Currency struct {
-	isoCode   string
-	precision byte
+	ISOCode   string
+	Precision byte
+}
+
+func (c *Currency) validate() error {
+	valid := len(c.ISOCode) == 3 && c.Precision != 0
+	if !valid {
+		return errCurrencyValidationError
+	}
+	return nil
 }
 
 type CurrencyList = map[string]Currency
@@ -26,49 +47,53 @@ type CurrencyParser struct {
 	currencies CurrencyList
 }
 
-func NewCurrencyParser(data CurrencyData) (*CurrencyParser, Error) {
+func NewCurrencyParser(data CurrencyData) (*CurrencyParser, error) {
 	currencies, err := data.getCurrencies()
 
 	if err != nil {
-		return &CurrencyParser{}, CurrencyDataReadError
+		return &CurrencyParser{}, errCurrencyDataNotLoaded
 	}
 
-	return &CurrencyParser{currencies: currencies}, ""
+	return &CurrencyParser{currencies: currencies}, nil
 
 }
 
-func (parser *CurrencyParser) ParseCurrency(input string) (Currency, Error) {
+func (parser *CurrencyParser) ParseCurrency(input string) (Currency, error) {
 
 	err := validateCurrencyInput(input)
 
 	if err != nil {
-		return Currency{}, CurrencyDataReadError
+		return Currency{}, err
 	}
 
-	_, exists := parser.currencies[strings.ToUpper(input)]
+	currency, exists := parser.currencies[strings.ToUpper(input)]
 
 	if !exists {
-		return Currency{}, CurrencyInputValidationError
+		return Currency{}, errCurrencyNotFound
 	}
 
-	return Currency{isoCode: strings.ToUpper(input)}, ""
+	return currency, nil
 }
 
 func validateCurrencyInput(input string) error {
 	if len(input) != 3 {
-		return Error(CurrencyParseInvalidCodeError)
+		return errCurrencyInputValidation
 	}
 
 	// Go has no native way of checking that a letter is english,
 	// But we know that ASCII is 127 chars.
-	// If a rune (uint32) is > 127 then its not an ASCII char - we can then check it's a letter.
+	// If a rune (uint32) is > 127 then its not an ASCII char - we can fail validation.
+	// If it is, then we can check that the character is a letter.
 	// https://stackoverflow.com/questions/53069040/checking-a-string-contains-only-ascii-characters
 
 	for _, c := range input {
-		if c > unicode.MaxASCII {
+		if c < unicode.MaxASCII {
 			if !unicode.IsLetter(c) {
-				return Error(CurrencyParseInvalidCodeError)
+				return errCurrencyInputValidation
 			}
+		} else {
+			// Fail for non ascii characters.
+			return errCurrencyInputValidation
 		}
 	}
 

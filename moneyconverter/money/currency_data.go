@@ -32,8 +32,20 @@ func (jcd *JSONCurrencyData) getCurrencies() (CurrencyList, error) {
 
 	list := make(CurrencyList)
 
+	if len(decoded) == 0 {
+		return nil, errCurrencyListEmpty
+	}
+
 	for code, currency := range decoded {
-		list[code] = Currency{isoCode: code, precision: currency.Precision}
+		c := Currency{ISOCode: code, Precision: currency.Precision}
+
+		err := c.validate()
+
+		if err != nil {
+			return nil, err
+		}
+
+		list[code] = c
 	}
 
 	return list, nil

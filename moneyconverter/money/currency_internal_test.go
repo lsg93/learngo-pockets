@@ -14,21 +14,20 @@ func TestParseCurrencySuccesfully(t *testing.T) {
 	testCases := map[string]testCase{
 		"Supports typical input": {
 			input:          "USD",
-			expectedResult: Currency{isoCode: "USD", precision: 2},
+			expectedResult: Currency{ISOCode: "USD", Precision: 2},
 		},
 		"Supports lowercase": {
 			input:          "gbp",
-			expectedResult: Currency{isoCode: "GBP", precision: 2},
+			expectedResult: Currency{ISOCode: "GBP", Precision: 2},
 		},
 	}
 
-	parser := setupTestCurrencyParser()
-
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
+			parser := setupTestCurrencyParser()
 			gotResult, gotError := parser.ParseCurrency(tc.input)
 
-			if gotError != "" {
+			if gotError != nil {
 				t.Errorf("An error %s occurred when none was expected.", gotError)
 			}
 
@@ -46,33 +45,36 @@ func TestParseCurrencyInputValidation(t *testing.T) {
 	}
 
 	testCases := map[string]testCase{
-		"Throws error when non-existent ISO 4217 currency code is supplied": {
-			input:         "GBK",
-			expectedError: CurrencyParseInvalidCodeError,
-		},
 		"Throws error when currency code is not English": {
 			input:         "💰💰💰",
-			expectedError: CurrencyParseInvalidCodeError,
+			expectedError: errCurrencyInputValidation,
+		},
+		"Throws error when currency code != 3 characters": {
+			input:         "ab",
+			expectedError: errCurrencyInputValidation,
 		},
 		"Throws error with numeric input": {
 			input:         "123",
-			expectedError: CurrencyParseInvalidCodeError,
+			expectedError: errCurrencyInputValidation,
+		},
+		"Throws error when valid, but non-existent ISO 4217 currency code is supplied": {
+			input:         "GBK",
+			expectedError: errCurrencyNotFound,
 		},
 	}
-
-	parser := setupTestCurrencyParser()
 
 	for desc, tc := range testCases {
 
 		t.Run(desc, func(t *testing.T) {
+			parser := setupTestCurrencyParser()
 			_, gotError := parser.ParseCurrency(tc.input)
 
-			if gotError == "" {
+			if gotError == nil {
 				t.Errorf("No error occurred, but the error %v was expected", tc.expectedError)
 			}
 
 			if tc.expectedError != gotError {
-				t.Errorf("The expected error %v was not the error received : %v", gotError, tc.expectedError)
+				t.Errorf("The expected error %v was not the error received : %v", tc.expectedError, gotError)
 			}
 		})
 	}
