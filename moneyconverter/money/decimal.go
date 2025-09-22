@@ -1,14 +1,20 @@
 package money
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 	"unicode"
 )
 
 var (
-	DecimalParseErrorInvalidInput = Error("An invalid input was provided.")
-	DecimalParseErrorNoInput      = Error("No input was provided.")
+	errDecimalParseInvalidInput = errors.New("An invalid input was provided.")
+	errDecimalParseNoInput      = errors.New("No input was provided.")
+)
+
+var (
+	DecimalParseInvalidInputError = errDecimalParseInvalidInput
+	DecimalParseNoInputError      = errDecimalParseNoInput
 )
 
 type Decimal struct {
@@ -67,16 +73,14 @@ func (d *Decimal) simplifyMantissa() {
 
 func validateDecimalInput(joined string) error {
 	if len(joined) == 0 {
-		return DecimalParseErrorNoInput
+		return errDecimalParseNoInput
 	}
 
 	for _, ch := range joined {
 		if !unicode.IsNumber(rune(ch)) {
-			return DecimalParseErrorInvalidInput
+			return errDecimalParseInvalidInput
 		}
 	}
 
 	return nil
 }
-
-// func stripSeparators(joined string)  {}
