@@ -48,7 +48,7 @@ type CurrencyParser struct {
 }
 
 func NewCurrencyParser(data CurrencyData) (*CurrencyParser, error) {
-	currencies, err := data.getCurrencies()
+	currencies, err := data.GetCurrencies()
 
 	if err != nil {
 		return &CurrencyParser{}, errCurrencyDataNotLoaded

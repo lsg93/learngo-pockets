@@ -11,7 +11,7 @@ type JSONCurrency struct {
 }
 
 type CurrencyData interface {
-	getCurrencies() (CurrencyList, error)
+	GetCurrencies() (CurrencyList, error)
 }
 
 type JSONCurrencyData struct {
@@ -22,7 +22,7 @@ func NewJSONCurrencyData(input io.Reader) *JSONCurrencyData {
 	return &JSONCurrencyData{input: input}
 }
 
-func (jcd *JSONCurrencyData) getCurrencies() (CurrencyList, error) {
+func (jcd *JSONCurrencyData) GetCurrencies() (CurrencyList, error) {
 	var decoded map[string]JSONCurrency
 	err := json.NewDecoder(jcd.input).Decode(&decoded)
 

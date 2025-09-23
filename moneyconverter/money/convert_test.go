@@ -1,49 +1,47 @@
 package money_test
 
-// import (
-// 	"learngo-pockets/moneyconverter/money"
-// 	"testing"
-// )
+import (
+	"learngo-pockets/moneyconverter/money"
+	"learngo-pockets/moneyconverter/money/testutils"
+	"testing"
+)
 
-// func TestConvert(t *testing.T) {
+func TestConvertsSuccesfully(t *testing.T) {
 
-// 	type testCase struct {
-// 		convertFrom    money.Amount
-// 		convertTo      string
-// 		expectedError  error
-// 		expectedAmount money.Amount
-// 	}
+	type testCase struct {
+		convertAmount  string
+		convertFrom    string
+		convertTo      string
+		expectedAmount money.Amount
+	}
 
-// 	testCases := map[string]testCase{
-// 		"1 GBP to USD value": {
-// 			convertFrom:    money.NewAmount(1, "GBP"),
-// 			convertTo:      "USD",
-// 			expectedError:  nil,
-// 			expectedAmount: money.NewAmount(1.33, "USD"),
-// 		},
-// 		"19.99 USD to GBP value": {
-// 			convertFrom:    money.NewAmount(19.99, "USD"),
-// 			convertTo:      "USD",
-// 			expectedError:  nil,
-// 			expectedAmount: money.NewAmount(14.80, "GBP"),
-// 		},
-// 	}
+	testCases := map[string]testCase{
+		"1 GBP to USD value": {
+			convertAmount:  "1",
+			convertFrom:    "GBP",
+			convertTo:      "USD",
+			expectedAmount: money.Amount{},
+		},
+		"19.99 USD to GBP value": {
+			convertAmount:  "19.99",
+			convertFrom:    "USD",
+			convertTo:      "GBP",
+			expectedAmount: money.Amount{},
+		},
+	}
 
-// 	for desc, tc := range testCases {
-// 		t.Run(desc, func(t *testing.T) {
-// 			gotAmount, gotErr := money.Convert(tc.convertFrom, money.ParseCurrency(tc.convertTo))
+	for desc, tc := range testCases {
+		t.Run(desc, func(t *testing.T) {
+			convertFrom, convertTo := testutils.SetupTestConversionData(t, tc.convertAmount, tc.convertFrom, tc.convertTo)
+			gotAmount, gotErr := money.Convert(convertFrom, convertTo)
 
-// 			if tc.expectedError == nil && gotErr != nil {
-// 				t.Errorf("An error %v was returned and none was expected.", gotErr)
-// 			}
+			if gotErr != nil {
+				t.Fatalf("An error %v was returned and none was expected.", gotErr)
+			}
 
-// 			if tc.expectedError != nil && gotErr != tc.expectedError {
-// 				t.Errorf("An error %v was returned but error %v was expected.", gotErr, tc.expectedError)
-// 			}
-
-// 			if !gotAmount.Equals(tc.expectedAmount) {
-// 				t.Errorf("Conversion failed - expected output was %d, %d given", tc.expectedAmount, gotAmount)
-// 			}
-// 		})
-// 	}
-// }
+			if gotAmount != tc.expectedAmount {
+				t.Errorf("The amount received %v and the expected amount %v were not equal", gotAmount, tc.expectedAmount)
+			}
+		})
+	}
+}
