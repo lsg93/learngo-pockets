@@ -24,7 +24,7 @@ func TestParseCurrencySuccesfully(t *testing.T) {
 
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
-			parser := setupTestCurrencyParser()
+			parser := SetupTestCurrencyParser(t)
 			gotResult, gotError := parser.ParseCurrency(tc.input)
 
 			if gotError != nil {
@@ -66,7 +66,7 @@ func TestParseCurrencyInputValidation(t *testing.T) {
 	for desc, tc := range testCases {
 
 		t.Run(desc, func(t *testing.T) {
-			parser := setupTestCurrencyParser()
+			parser := SetupTestCurrencyParser(t)
 			_, gotError := parser.ParseCurrency(tc.input)
 
 			if gotError == nil {

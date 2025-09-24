@@ -10,7 +10,7 @@ func TestCurrencyDataCanBeLoadedFromJSONInput(t *testing.T) {
 	jsonStub := `{"GBP": {"decimals": 2}}`
 	data := NewJSONCurrencyData(strings.NewReader(jsonStub))
 
-	list, gotError := data.getCurrencies()
+	list, gotError := data.GetCurrencies()
 
 	if gotError != nil {
 		t.Fatalf("An error %v occurred when none was expected.", gotError)
@@ -43,7 +43,7 @@ func TestJSONCurrencyDataFailsToLoad(t *testing.T) {
 	for desc, tc := range testCases {
 		t.Run(desc, func(t *testing.T) {
 			data := NewJSONCurrencyData(strings.NewReader(tc.input))
-			_, gotError := data.getCurrencies()
+			_, gotError := data.GetCurrencies()
 
 			if gotError == nil {
 				t.Fatalf("No errors occurred, even though one was expected")
