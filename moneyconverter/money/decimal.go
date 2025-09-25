@@ -42,14 +42,20 @@ func ParseDecimal(input string) (Decimal, error) {
 	}
 
 	res := Decimal{integer: integer, precision: len(rhs)}
-	res.simplifyMantissa()
+	res.simplifyInteger()
 
 	return res, nil
 }
 
 // We don't need trailing zeroes when dealing with precision.
 // This function handles that.
-func (d *Decimal) simplifyMantissa() {
+func (d *Decimal) simplifyInteger() {
+
+	// Return early if this is called on an zeroed/uninitialised decimal.
+	if d.integer == 0 {
+		return
+	}
+
 	// loop through each integer, going backwards
 	// if integer == 0, remove it, and decrement the precision property.
 

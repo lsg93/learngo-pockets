@@ -26,7 +26,16 @@ func (c *converter) Convert(amount Amount, to Currency) (Amount, error) {
 		return Amount{}, err
 	}
 
-	// multiply quantity by exchange rate, being mindful of precision.
-
 	return Amount{}, nil
+}
+
+func multiply(lhs Decimal, rhs Decimal) Decimal {
+	dec := Decimal{
+		integer:   lhs.integer * rhs.integer,
+		precision: lhs.precision + rhs.precision,
+	}
+
+	dec.simplifyInteger()
+
+	return dec
 }
