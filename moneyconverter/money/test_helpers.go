@@ -2,6 +2,8 @@ package money
 
 import (
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 type testCurrencyData struct {
@@ -64,4 +66,25 @@ func SetupTestConversionData(t *testing.T, amtDecimal string, fromCurrencyCode s
 
 	// Return the amount, and the destination currency for use in conversion tests.
 	return amt, toCurrency
+}
+
+type mockRateService struct {
+	rate ExchangeRate
+}
+
+func (mrs *mockRateService) getRate(string) (ExchangeRate, error) {
+	return mrs.rate, nil
+}
+
+func SetupTestConverter(t *testing.T, rateString string) *converter {
+	spew.Dump("dumping rateStr")
+	spew.Dump(rateString)
+	rate, err := ParseDecimal(rateString)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	converter := NewConverter(&mockRateService{rate: rate})
+	return converter
 }

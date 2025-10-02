@@ -95,3 +95,39 @@ func TestDecimalParse(t *testing.T) {
 		})
 	}
 }
+
+func TestDecimalTargetPrecisionCanBeSetSuccesfully(t *testing.T) {
+	type testCase struct {
+		decimal         Decimal
+		targetPrecision int
+		expectedResult  Decimal
+	}
+
+	testCases := map[string]testCase{
+		"When precision of quantity is the same as precision of currency": {
+			decimal:         Decimal{integer: 133, precision: 2},
+			targetPrecision: 2,
+			expectedResult:  Decimal{integer: 133, precision: 2},
+		},
+		"When precision of quantity is greater than precision of currency": {
+			decimal:         Decimal{integer: 133, precision: 2},
+			targetPrecision: 0,
+			expectedResult:  Decimal{integer: 1, precision: 0},
+		},
+		"When precision of quantity is less than precision of currency": {
+			decimal:         Decimal{integer: 133, precision: 2},
+			targetPrecision: 3,
+			expectedResult:  Decimal{integer: 1330, precision: 3},
+		},
+	}
+
+	for desc, tc := range testCases {
+		t.Run(desc, func(t *testing.T) {
+			tc.decimal.setTargetPrecision(tc.targetPrecision)
+			if tc.decimal != tc.expectedResult {
+				t.Errorf("The expected result %d was not equal to the returned result %d", tc.decimal, tc.expectedResult)
+			}
+		})
+	}
+
+}

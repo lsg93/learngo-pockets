@@ -1,13 +1,12 @@
 package money
 
-type ExchangeRate Decimal
+type ExchangeRate = Decimal
 
 type RateService interface {
 	getRate(string) (ExchangeRate, error)
 }
 
-type exchangeRateService struct {
-}
+type exchangeRateService struct{}
 
 func (ers *exchangeRateService) getRate(string) (ExchangeRate, error) {
 	// Hardcode this as 2 for now.

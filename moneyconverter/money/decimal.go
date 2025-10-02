@@ -2,6 +2,7 @@ package money
 
 import (
 	"errors"
+	"math"
 	"strconv"
 	"strings"
 	"unicode"
@@ -75,6 +76,37 @@ func (d *Decimal) simplifyInteger() {
 	}
 
 	d.integer = simplified
+}
+
+func (d *Decimal) setTargetPrecision(targetPrecision int) {
+
+	var difference int
+
+	switch {
+	case d.precision > targetPrecision:
+		difference = d.precision - targetPrecision
+		d.integer = d.integer / int64(pow10(difference))
+
+	case d.precision < targetPrecision:
+		difference = targetPrecision - d.precision
+		d.integer = d.integer * int64(pow10(difference))
+	}
+
+	d.precision = targetPrecision
+}
+
+// Quicker look up for powers of 10.
+func pow10(exponent int) int {
+	switch exponent {
+	case 1:
+		return 10
+	case 2:
+		return 100
+	case 3:
+		return 1000
+	default:
+		return int(math.Pow(10, float64(exponent)))
+	}
 }
 
 func validateDecimalInput(joined string) error {

@@ -20,13 +20,22 @@ func NewConverter(rateService RateService) *converter {
 
 func (c *converter) Convert(amount Amount, to Currency) (Amount, error) {
 	// Get rate first.
-	_, err := c.rateService.getRate(to.ISOCode)
+	rate, err := c.rateService.getRate(to.ISOCode)
 
 	if err != nil {
 		return Amount{}, err
 	}
 
-	return Amount{}, nil
+	// Multiply amount with exchange rate, then set precision to that of target currency.
+	newQuantity := multiply(amount.quantity, rate)
+	newQuantity.setTargetPrecision(int(to.Precision))
+
+	result := Amount{
+		quantity: newQuantity,
+		currency: to,
+	}
+
+	return result, nil
 }
 
 func multiply(lhs Decimal, rhs Decimal) Decimal {
